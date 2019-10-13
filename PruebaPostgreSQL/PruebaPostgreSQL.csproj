@@ -292,17 +292,48 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\DescuentosConvenioController.cs" />
+    <Compile Include="Controllers\DocumentoContableController.cs" />
     <Compile Include="Controllers\DropDownBoxController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\WebApi\AuxiliaresCentroCostosWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\AuxiliaresWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\ControlFiscalWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\EstadoContableWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\ImpuestoORetencionWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\MonedaWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\MultilibroWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\SucursalWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\TerceroMaestroWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\TipoDocumentoWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\UnidadesNegocioWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\UnidadNegocioWebApiController.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AuxiliarContableViewModel.cs" />
+    <Compile Include="Models\AuxiliaresCentroCostosViewModel.cs" />
+    <Compile Include="Models\AuxiliaresViewModel.cs" />
+    <Compile Include="Models\AuxiliarFlujoEfectivoViewModel.cs" />
+    <Compile Include="Controllers\WebApi\AuxiliarFlujoEfectivoWebApiController.cs" />
+    <Compile Include="Models\ClasificacionTributariaViewModel.cs" />
+    <Compile Include="Models\ClasificacionTributariaVigenciaViewModel.cs" />
+    <Compile Include="Models\ControlFiscalViewModel.cs" />
     <Compile Include="Models\DescuentoPorConvenio.cs" />
+    <Compile Include="Models\DocumentoContableParaGuardarViewModel.cs" />
+    <Compile Include="Models\EstadoContableViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ImpuestoORetencionViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\MonedaViewModel.cs" />
+    <Compile Include="Models\MultilibroViewModel.cs" />
+    <Compile Include="Models\ProyectoViewModel.cs" />
     <Compile Include="Models\ReportInfo.cs" />
+    <Compile Include="Models\SucursalViewModel.cs" />
+    <Compile Include="Models\TerceroMaestroViewModel.cs" />
+    <Compile Include="Models\TipoDocumentoViewModel.cs" />
+    <Compile Include="Models\UnidadesNegocioViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reportes\XtraReportDescuentos.cs">
       <SubType>Component</SubType>
@@ -4848,13 +4879,13 @@
     <Content Include="Views\DescuentosConvenio\Create.cshtml" />
     <Content Include="_LayoutReportes.cshtml" />
     <Content Include="Views\Shared\_LayoutReportes.cshtml" />
+    <Content Include="Views\DocumentoContable\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\Cartera\" />
     <Folder Include="Controllers\Contabilidad\" />
     <Folder Include="Controllers\Transacciones\" />
-    <Folder Include="Controllers\WebApi\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

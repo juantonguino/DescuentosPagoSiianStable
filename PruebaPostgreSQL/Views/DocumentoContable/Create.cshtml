@@ -1,0 +1,781 @@
+﻿@using Entities.Contabilidad.ViewModels
+@model DocumentoContableParaGuardarViewModel
+@{
+    ViewBag.Title = "Documento Contable";
+}
+
+<h2>Documento Contable</h2>
+<script>
+
+    //AQUI SE ESTABLECE LA MONEDA POR DEFECTO
+    const DEFAULT_MONEY = 1;
+
+    //Variable creada para seterar el valor  digirado cpor el usuario
+    var valor = 0;
+    var valorTrm = 0;
+
+    function CreateInputElement(itemName, itemValue, itemIndex, container, clase) {
+        var $input = $("<input/>");
+        $input.appendTo(container).attr({ type: "hidden", name: clase + itemIndex + "]." + itemName }).val(itemValue);
+    }
+
+    function clickHandler(e) {
+        if (e.validationGroup.validate().isValid) {
+            $("#grid").dxDataGrid("instance").saveEditData();
+            $("#grid").dxDataGrid("instance").getDataSource().load().done(function (items) {
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    for (var property in item) {
+                        if (item.hasOwnProperty(property)) {
+                            CreateInputElement(property, item[property], i, $("#editContable")[0], "ListaAuxiliarContable[");
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function toolbar(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        $.each(toolbarItems, function (_, item) {
+            if (item.name == "saveButton") //|| item.name == "revertButton")
+            {
+                item.visible = false;
+            }
+        });
+    }
+
+    function lookup_displayExpr2(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Nombre + " " + item.Codigo;
+    }
+
+    function lookup_displayExpr1(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Identificacion + "-" + item.Nombreunido;
+    }
+
+    function lookup_displayExprtipo(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Prefijo + "-" + item.Nombre;
+    }
+
+    function lookup_displayExpraux(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Codigo + "-" + item.Nombre;
+    }
+
+    function lookup_displayExpraux1(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Codigo + "-" + item.Nombre1;
+    }
+
+    function lookup_displayExprmon(item) {
+        if (!item) {
+            return "";
+        }
+        return item.Sigla + "-" + item.Nombre;
+    }
+
+    function guardar(e) {
+        //$("#Operacion").val($(this).data("pdsa-action"));
+        $("#escuadrado").dxTextBox("instance")._renderDisplayText(esDocumentoCuadrado())
+        $("#grid").dxDataGrid("instance").saveEditData();
+        $("#grid").dxDataGrid("instance").getDataSource().load().done(function (items) {
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                for (var property in item) {
+                    if (item.hasOwnProperty(property)) {
+                        CreateInputElement(property, item[property], i, $("#editContable")[0], "ListaAuxiliarContable[");
+                    }
+                }
+            }
+            $("#editContable").submit();
+        });
+    }
+
+    function esDocumentoCuadrado() {
+        let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+        let valCretidtos = 0;
+        let valDebitos = 0;
+        for (i = 0; i < array.length; i++) {
+            let objItem = array[i];
+            if (objItem.objItem === false) {
+                valDebitos = valDebitos + parseInt(objItem.ValorAlterno);
+            }
+            else {
+                valCretidtos = valCretidtos + parseInt(objItem.ValorAlterno);
+            }
+        }
+
+        if (valCretidtos === valDebitos) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+        $("[data-pdsa-action]").on("click", function (e) {
+            e.preventDefault();
+            $("#Operacion").val($(this).data("pdsa-action"));
+
+            $("#grid").dxDataGrid("instance").getDataSource().load().done(function (items) {
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    for (var property in item) {
+                        if (item.hasOwnProperty(property)) {
+                            CreateInputElement(property, item[property], i, $("#editContable")[0], "ListaAuxiliarContable[");
+                        }
+                    }
+                }
+                $("#editContable").submit();
+
+            });
+
+        });
+    });
+
+    function keyPress(e) {
+        if (e.event.key === "Delete") {
+            e.component._setValue("")
+        }
+    }
+
+    function calcularValorAlterno(e) {
+        if (e !== null) {
+            moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
+            valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
+            if (moneySelected !== DEFAULT_MONEY) {
+                return valorTrm * valor;
+            }
+            else {
+                return valor
+            }
+        }
+        else {
+            return 0;
+        }
+    }
+    var event;
+    function changeValue(e) {
+        event = e;
+        //setValue(args.value);
+        console.log(e)
+        //e.set(e.value);
+        //$("$moneySelected").dxSelectBox("instance");
+        //let moneySelected=$("#moneySelected").dxSelectBox("instance");
+        //let valueTrm =$("#trmSelected").dxTextBox("instance");
+
+        //let valMoney=moneySelected.option('value');
+        if (valMoney !== DEFAULT_MONEY) {
+            valueTrm.option('value')
+        }
+    }
+</script>
+@foreach (var item in Model.Error)
+{
+    <h6 style="color:red">@item</h6>
+}
+@*@using (Html.BeginForm("Create", "DocumentoContable", FormMethod.Post))*@
+@using (Html.BeginForm("Create", "DocumentoContable", FormMethod.Post, new { id = "editContable" }))
+{
+    @Html.HiddenFor(m => m.Id)
+    <div class="dx-fieldset">
+        <div class="dx-field">
+            <div class="dx-field-value">
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("save")
+                        .Hint("Guardar")
+                        .OnClick("guardar")
+                        .ElementAttr("data-pdsa-action", "guardar")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("check")
+                        .Hint("Aprobar")
+                        .ElementAttr("data-pdsa-action", "aprobar")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("close")
+                        .Hint("Anular")
+                        .ElementAttr("data-pdsa-action", "anular")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("chevrondoubleleft")
+                        .Hint("Primero")
+                        .ElementAttr("data-pdsa-action", "primero")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("back")
+                        .Hint("Anterior")
+                        .ElementAttr("data-pdsa-action", "anterior")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("plus")
+                        .Hint("Nuevo")
+                        .ElementAttr("data-pdsa-action", "nuevo")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("chevronnext")
+                        .Hint("Siguiente")
+                        .ElementAttr("data-pdsa-action", "siguiente")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Hint("Ultimo")
+                        .ElementAttr("data-pdsa-action", "ultimo")
+                        .Icon("chevrondoubleright")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("print")
+                        .Hint("Imprimir Recibo")
+                        .ElementAttr("data-pdsa-action", "imprimir")
+                )
+                @(Html.DevExtreme()
+                        .Button()
+                        .Icon("search")
+                        .Hint("Buscar Recibo")
+                        .ElementAttr("data-pdsa-action", "consultar")
+                        .OnClick(@"function () {
+                           location.href='./search'
+                        }")
+                )
+            </div>
+        </div>
+    </div>
+
+    @(Html.DevExtreme()
+        .Form<DocumentoContableParaGuardarViewModel>()
+        .ValidationGroup("documentoContableViewModel")
+        .FormData(Model)
+        .Items(formItems =>
+                {
+        formItems.AddGroup().Caption("Datos de Documento").ColCount(3).Items(formItems1 =>
+                    {
+            formItems1.AddSimpleFor(m => m.Idsucursal)
+                .Editor(e => e.SelectBox().DataSource(ds => ds.WebApi().Controller("SucursalWebApi").LoadAction("Get").Key("Id"))
+                .SearchExpr(new[] { "Codigo", "Nombre" })
+                .DisplayExpr("Nombre")
+                .Placeholder("Seleccionar...")
+                .ValueExpr("Id")
+                .SearchEnabled(true)
+                .ItemTemplate(@<text>
+                <div class="custom-item">
+                    <div><%= Codigo %> <%= Nombre %> </div>
+                </div>
+                </text>)).IsRequired(true);
+
+         formItems1.AddSimpleFor(m => m.Idtipodocumento)
+         .Editor(e => e.SelectBox()
+         .DataSource(d => d.WebApi()
+         .Controller("TipoDocumentoWebApi")
+         .LoadAction("Get").Key("Id"))
+         .SearchExpr(new[] { "Prefijo", "Nombre" })
+         .DisplayExpr(new JS("lookup_displayExprtipo"))
+         .ValueExpr("Id")
+         .Placeholder("Seleccionar...")
+         .SearchEnabled(true)
+         .ItemTemplate(@<text>
+                <div class="custom-item">
+                    <div><%= Prefijo %> - <%= Nombre %> </div>
+                </div>
+        </text>)).IsRequired(true);
+
+ formItems1.AddSimpleFor(x => x.Nrodocumento);
+
+ formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
+     e.SelectBox()
+     .DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+     .SearchExpr(new[] { "Identificacion", "Nombreunido" })
+     .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+     .DisplayExpr(new JS("lookup_displayExpr1"))
+     .ValueExpr("Id")
+     .Placeholder("Seleccionar...")
+     .SearchEnabled(true)
+     .ItemTemplate(
+    @<text>
+        <div class="custom-item">
+            <div><%= Identificacion %> - <%= Nombreunido %> </div>
+        </div>
+    </text>)).IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.Estado)
+.Editor(e =>
+e.SelectBox()
+.DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
+.SearchExpr("Nombre")
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr("Nombre")
+.Disabled(false)
+.ValueExpr("Id")
+.Placeholder("Seleccionar...")
+.SearchEnabled(true)
+.ItemTemplate(@<text>
+    <div class="custom-item">
+        <div><%= Identificacion %> - <%= Nombreunido %> </div>
+    </div>
+</text>))
+.IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.Fechadocumento)
+.Editor(e => e.DateBox());
+
+formItems1.AddSimpleFor(m => m.Fechacontabilizacion).Editor(e => e.DateBox());
+
+formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox()
+.DataSource(d => d.WebApi().Controller("AuxiliaresCentroCostosWebApi").Key("Id"))
+.SearchExpr(new[] { "Codigo", "Nombre" })
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExpraux"))
+.ValueExpr("Id")
+.Placeholder("Seleccionar...")
+.SearchEnabled(true)
+.ItemTemplate(@<text>
+    <div class="custom-item">
+        <div><%= Codigo %> - <%= Nombre %> </div>
+    </div>
+</text>))
+.IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
+.Editor(e => e.SelectBox().DataSource(d => d.WebApi().Controller("UnidadNegocioWebApi").Key("Id"))
+.SearchExpr(new[] { "Codigo", "Nombre" })
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExpraux"))
+.ValueExpr("Id")
+.Placeholder("Seleccionar...")
+.SearchEnabled(true)
+.ItemTemplate(@<text>
+    <div class="custom-item">
+        <div><%= Codigo %> - <%= Nombre %> </div>
+    </div>
+</text>))
+.IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.IdMoneda)
+.Editor(e => e.SelectBox().DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
+.SearchExpr(new[] { "Sigla", "Nombre" })
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExprmon"))
+.ValueExpr("Id")
+.SearchEnabled(true)
+.ItemTemplate(@<text>
+    <div class="custom-item">
+        <div><%= Sigla %> - <%= Nombre %> </div>
+    </div>
+</text>)
+.ID("moneySelected")
+)
+.IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.Trm)
+.Editor(e => e
+.TextBox()
+.ID("trmSelected")
+).IsRequired(false);
+
+formItems1.AddSimpleFor(m => m.Notas)
+.Editor(e => e
+.TextArea()
+).IsRequired(true);
+
+formItems1.AddSimpleFor(m => m.DocumentosRefencia)
+.Editor(e => e.SelectBox()
+//.DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
+//.SearchExpr(new[] { "Sigla", "Nombre" })
+//.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExprmon"))
+.ValueExpr("Id")
+.SearchEnabled(true)
+//.ItemTemplate(@<text>
+//                <div class="custom-item">
+//                    <div><%= Sigla %> - <%= Nombre %> </div>
+//                </div>
+//</text>)
+.ID("documentosReferencia")
+).IsRequired(false);
+
+formItems1.AddSimpleFor(m => m.DocumentosQueReferencian)
+.Editor(e => e.SelectBox()
+//.DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
+//.SearchExpr(new[] { "Sigla", "Nombre" })
+//.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExprmon"))
+.ValueExpr("Id")
+.SearchEnabled(true)
+//.ItemTemplate(@<text>
+//                <div class="custom-item">
+//                    <div><%= Sigla %> - <%= Nombre %> </div>
+//                </div>
+//</text>)
+.ID("documentosQueReferencian")
+).IsRequired(false);
+
+formItems1.AddSimpleFor(
+m => m.IsCuadrado)
+.Editor(e => e.TextBox().ID("escuadrado")
+.Visible(true))
+.Visible(false);
+}
+);
+
+formItems.AddSimple()
+.Template(@<text>
+        @(Html.DevExtreme()
+            .DataGrid<AuxiliarContableViewModel>()
+            .ID("grid")
+            .ShowBorders(true)
+            .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
+            //.KeyExpr(new string[] { "OrderID" })
+            //.KeyExpr(new string[] { "Id" })
+            .DataSource(@Model.ListaAuxiliarContable, "Id")
+            .GroupPanel(gp => gp.EmptyPanelText("hola"))
+            //.DateSerializationFormat("MM-dd-yyyy")
+            .Columns(columns =>
+                                {
+                columns.Add()
+                .DataField("Idauxiliar")
+                .Caption("Auxiliar")
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("aux_template"))
+                //.Fixed(true)
+                ;
+                columns.AddFor(m => m.Idtercero)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("ter_template"))
+                //.Fixed(true)
+                ;
+                columns.AddFor(m => m.Idmultilibro)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("mul_template"))
+                //.Fixed(true)
+                ;
+                columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("suc_template"))
+                //.Fixed(true)
+                ;
+                columns.AddFor(m => m.Valor)
+                //.Fixed(true)
+                .EditCellTemplate(new TemplateName("val_template"))
+                ;
+                columns.AddFor(m => m.ValorAlterno)
+                .EditCellTemplate(new TemplateName("val_alterno_template")).CalculateCellValue(@"calcularValorAlterno");
+
+                columns.AddFor(m => m.Esdebito);
+
+                columns.AddFor(m => m.Notas);
+
+                columns.AddFor(m => m.Idunidadnegocio)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("un_template"));
+
+                columns.AddFor(m => m.Idccostos)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("cc_template"));
+
+                columns.AddFor(m => m.Idfe)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("fe_template"));
+
+                columns.AddFor(m => m.Idproyecto)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("pro_template"));
+
+                columns.AddFor(m => m.Idcontrolfiscal)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("cfi_template"));
+
+                columns.AddFor(m => m.Doccruce);
+
+                columns.AddFor(m => m.Nrocruce);
+
+                columns.AddFor(m => m.Fechavencimiento);
+
+                columns.AddFor(m => m.Periodovencimiento);
+
+                columns.AddFor(m => m.Refbanco);
+
+                columns.AddFor(m => m.IdTerceroDos)
+                .ShowEditorAlways(true)
+                .EditCellTemplate(new TemplateName("ter2_template"));
+            })
+            .Paging(paging => paging.Enabled(false))
+            .FilterRow(f => f.Visible(true))
+            .HeaderFilter(f => f.Visible(true))
+            .GroupPanel(p => p.Visible(true))
+            .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
+            .RemoteOperations(true)
+            .AllowColumnResizing(true)
+            .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+            .ColumnWidth(200)
+            .FocusedRowEnabled(true)
+            .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
+
+        //.OnToolbarPreparing("toolbar")
+        )
+</text>);
+}))
+}
+@Html.ValidationSummary()
+
+@using (Html.DevExtreme().NamedTemplate("val_template"))
+{
+    @(Html.DevExtreme()
+        .TextBox()
+        .OnValueChanged(@"function(args){
+            setValue(args.value);
+            valor=args.value;
+        }")
+        .Value(new JS("data.Valor"))
+        .ID("id_val_template").ActiveStateEnabled(true)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("val_alterno_template"))
+{
+    @(Html.DevExtreme()
+        .TextBox()
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .ID("id_val_alterno_template")
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("aux_template"))
+{
+    @(Html.DevExtreme()
+            .SelectBox()
+            .Width(400)
+            .Value(new JS("data.Idauxiliar"))
+            .SearchExpr(new string[] { "Codigo", "Nombre1" })
+            .OnValueChanged(@"function(args){setValue(args.value);}")
+            .DataSource(ds => ds.WebApi().Controller("AuxiliaresWebApi").LoadAction("Get").Key("Id"))
+            .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+            .DisplayExpr(new JS("lookup_displayExpraux1"))
+            .ValueExpr("Id")
+            .SearchEnabled(true)
+            .OnKeyPress("keyPress")
+            .OnKeyDown("keyPress")
+            //.OnKeyPress(@"function(args){
+            //    console.log(args)
+            //    setValue('');}")
+            //.OnKeyDown(@"function(args){
+            //    console.log(args)
+            //    setValue('');}")
+            .ItemTemplate(@<text>
+                        <div class="custom-item">
+                            <div><%= Codigo %> - <%= Nombre1 %> </div>
+                        </div>
+            </text>)
+    )
+}
+@using (Html.DevExtreme().NamedTemplate("ter_template"))
+{
+    @(Html.DevExtreme().SelectBox()
+        .Value(new JS("data.Idtercero"))
+        .SearchExpr(new string[] { "Identificacion", "Nombreunido" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr(new JS("lookup_displayExpr1"))
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div><%= Identificacion %> - <%= Nombreunido %> </div>
+                    </div>
+        </text>)
+    )
+}
+@using (Html.DevExtreme().NamedTemplate("ter2_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.IdTerceroDos"))
+        .SearchExpr(new string[] { "Identificacion", "Nombreunido" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr(new JS("lookup_displayExpr1"))
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div><%= Identificacion %> - <%= Nombreunido %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("mul_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idmultilibro"))
+        .SearchExpr(new string[] { "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("MultilibroWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("un_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idunidadnegocio"))
+        .SearchExpr(new string[] { "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("UnidadNegocioWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("suc_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idsucursal"))
+        .SearchExpr(new string[] { "Codigo", "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("SucursalWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Codigo %> - <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("cc_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idccostos"))
+        .SearchExpr(new string[] { "Codigo", "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("AuxiliaresCentroCostosWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Codigo %> - <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("fe_template"))
+{
+    @(Html.DevExtreme().SelectBox()
+    .Value(new JS("data.Idfe"))
+    .SearchExpr(new string[] { "Codigo", "Nombre" })
+    .OnValueChanged(@"function(args){setValue(args.value);}")
+    .DataSource(ds => ds.WebApi().Controller("AuxiliarFlujoEfectivoWebApi").LoadAction("Get").Key("Id"))
+    .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+    .DisplayExpr("Nombre")
+    .ValueExpr("Id")
+    .SearchEnabled(true)
+    .ItemTemplate(@<text>
+                <div class="custom-item">
+                    <div> <%= Codigo %> - <%= Nombre %> </div>
+                </div>
+    </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("pro_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idproyecto"))
+        .SearchExpr(new string[] { "Codigo", "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("ProyectoWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Codigo %> - <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+@using (Html.DevExtreme().NamedTemplate("cfi_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idcontrolfiscal"))
+        .SearchExpr(new string[] { "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("ControlFiscalWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+<!--MasterDetailTemplate-->
+
+@using (Html.DevExtreme().NamedTemplate("MaterdelailAuxContableDetail"))
+{
+    //AuxiliarContableViewMode
+    @(Html.DevExtreme().DataGrid<ImpuestoORetencionViewModel>()
+        .ShowBorders(true)
+        .LoadPanel(l => l.Enabled(true))
+        .Columns(column =>
+                {
+            column.AddFor(m => m.IdNultilibro);
+        })
+        .DataSource(d => d.WebApi().
+            Controller("ImpuestoORetencionWebApi")
+            .LoadAction("getImpuestoORetenciones")
+            .LoadParams(new { id = new JS("data.Id") }
