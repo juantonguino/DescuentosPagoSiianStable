@@ -81,5 +81,10 @@ namespace Entities.Contabilidad.ViewModels
             Notas = p_notas;
             ListaAuxiliarContable = new List<AuxiliarContableViewModel>();
         }
+
+        public AuxiliarContableViewModel GetListaAuxiliarContable(int item)
+        {
+            return ListaAuxiliarContable.Find(i => i.Id == item);
+        }
     }
 }

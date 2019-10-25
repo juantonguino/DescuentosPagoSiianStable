@@ -19,19 +19,51 @@ namespace PruebaPostgreSQL.Controllers.Contabilidad
         [HttpPost]
         public ActionResult Create(DocumentoContableParaGuardarViewModel view)
         {
-        
             return View(view);
         }
         public ActionResult Create()
         {
-
-            return View( new DocumentoContableParaGuardarViewModel());
+            var temp = new DocumentoContableParaGuardarViewModel();
+            temp.ListaAuxiliarContable.Add(new AuxiliarContableViewModel()
+            {
+                Id = 1,
+                IdAdicional = 1,
+                Idauxiliar = 1,
+                Idauxiliarcontableorigen = 1,
+                Idccostos = 1,
+                Idcontrolfiscal = 1,
+                Iddocumento = 1,
+                Idfe = 1,
+                Idmultilibro = 1,
+                Idpresupuesto = 1,
+                Idproyecto = 1,
+                Idsucursal = 1,
+                Idtercero = 1,
+                IdTerceroDos = 1,
+                Idunidadnegocio = 1,
+                Valor = 123,
+                ListaImpuestos = new List<ImpuestoORetencionViewModel>() { 
+                    new ImpuestoORetencionViewModel() {
+                    Id = 0,
+                    Idfe=0,
+                    IdSucursal=0,
+                    IdUnidadNegocio=0,
+                    IdProyecto=0,
+                    IdCentroCosto=0,
+                    Idcontrolfiscal=0,
+                    IdMultilibro=0,
+                    IdTercero=0,
+                    IdTerceroDos=0
+                    }
+                }
+            });
+            return View("Create", temp);
+            //return View( new DocumentoContableParaGuardarViewModel());
         }
         [HttpPost]
-        public ActionResult Editar()
+        public ActionResult Editar(DocumentoContableParaGuardarViewModel view)
         {
-            
-            return View("Create", new DocumentoContableParaGuardarViewModel());
+            return View("Create", view);
         }
 
         public ActionResult search()

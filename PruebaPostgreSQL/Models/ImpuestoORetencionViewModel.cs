@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,21 +10,27 @@ namespace Entities.Contabilidad.ViewModels
 {
     public class ImpuestoORetencionViewModel
     {
+        public int Id;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? EsRetencion { get; set; }
         [Display(Name = "Codigo")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Codigo { get; set; }
         [Display(Name = "Porcentaje")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public decimal? Porcentaje { get; set; }
         [Display(Name = "Base Impuesto")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public decimal? BaseImpuesto { get; set; }
         [Display(Name = "Valor")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public decimal? Valor { get; set; }
         [Display(Name = "Notas")]
         public string Notas { get; set; }
         [Display(Name = "Persona")]
         public int? IdTercero { get; set; }
         [Display(Name = "Multilibro")]
-        public int? IdNultilibro { get; set; }
+        public int? IdMultilibro { get; set; }
         [Display(Name = "Sucursal")]
         public int? IdSucursal { get; set; }
         [Display(Name = "Unidad de Negocio")]
@@ -53,7 +60,7 @@ namespace Entities.Contabilidad.ViewModels
 
         public ImpuestoORetencionViewModel() { }
 
-        public ImpuestoORetencionViewModel(bool? esRetencion, string codigo, decimal? porcentaje, decimal? baseImpuesto, decimal? valor, string notas, int? idTercero, int? idNultilibro, int? idSucursal, int? idUnidadNegocio, int? idCentroCosto, int? idProyecto, int? idcontrolfiscal, int? idfe, string doccruce, string nrocruce, DateTime? fechavencimiento, int? periodovencimiento, string refbanco, int? idTerceroDos)
+        public ImpuestoORetencionViewModel(bool? esRetencion, string codigo, decimal? porcentaje, decimal? baseImpuesto, decimal? valor, string notas, int? idTercero, int? idMultilibro, int? idSucursal, int? idUnidadNegocio, int? idCentroCosto, int? idProyecto, int? idcontrolfiscal, int? idfe, string doccruce, string nrocruce, DateTime? fechavencimiento, int? periodovencimiento, string refbanco, int? idTerceroDos)
         {
             EsRetencion = esRetencion;
             Codigo = codigo;
@@ -62,7 +69,7 @@ namespace Entities.Contabilidad.ViewModels
             Valor = valor;
             Notas = notas;
             IdTercero = idTercero;
-            IdNultilibro = idNultilibro;
+            IdMultilibro = idMultilibro;
             IdSucursal = idSucursal;
             IdUnidadNegocio = idUnidadNegocio;
             IdCentroCosto = idCentroCosto;

@@ -13,9 +13,10 @@ namespace PruebaPostgreSQL.Controllers.WebApi
     public class ImpuestoORetencionWebApiController : ApiController
     {
         [HttpGet]
-        public HttpResponseMessage getImpuestoORetenciones( object id, DataSourceLoadOptions loadOptions)
+        public HttpResponseMessage getImpuestoORetenciones( int id, DataSourceLoadOptions loadOptions)
         {
-            return Request.CreateResponse(DataSourceLoader.Load(GetListImpuestos(id), loadOptions));
+            var impuestos = GetListImpuestos(int.Parse(id.ToString()));
+            return Request.CreateResponse(DataSourceLoader.Load(impuestos, loadOptions));
         }
 
         //id auxiliar contable
@@ -33,7 +34,7 @@ namespace PruebaPostgreSQL.Controllers.WebApi
                 Fechavencimiento =DateTime.Now,
                 IdCentroCosto=0,
                 Idfe=0,
-                IdNultilibro=0,
+                IdMultilibro=0,
                 IdProyecto=0,
                 IdSucursal=0,
                 IdTercero=0,

@@ -3,9 +3,17 @@
 @{
     ViewBag.Title = "Documento Contable";
 }
+<style>
+    .display {
+        display: none !important;
+    }
+</style>
 
 <h2>Documento Contable</h2>
 <script>
+    var showMulti = false;
+
+    var showSucursal = false;
 
     //AQUI SE ESTABLECE LA MONEDA POR DEFECTO
     const DEFAULT_MONEY = 1;
@@ -127,6 +135,10 @@
     }
 
     $(document).ready(function () {
+        $(".showMultiLibro").hide()
+        $(".showSucursal").hide()
+
+        //aqui se ocuelta el campo escuadrado
         $("[data-pdsa-action]").on("click", function (e) {
             e.preventDefault();
             $("#Operacion").val($(this).data("pdsa-action"));
@@ -140,6 +152,7 @@
                         }
                     }
                 }
+                refreshTreeList();
                 $("#editContable").submit();
 
             });
@@ -183,12 +196,203 @@
             valueTrm.option('value')
         }
     }
+
+    function ocultar(e) {
+        //let temp=e.elementparent().parent().parent().parent();
+        //console.log(temp)
+        //temp.hide()
+        //e.css('display','none')
+    }
+
+    function eliminar(e) {
+        let dataGrid = $("#grid").dxDataGrid("instance")
+        dataGrid.beginUpdate();
+        var keys = dataGrid.getSelectedRowKeys().reverse();
+        $.each(keys, function (i, key) {
+            var index = dataGrid.getRowIndexByKey(key);
+            dataGrid.deleteRow(index);
+            dataGrid.refresh();
+        });
+        dataGrid.endUpdate();
+        dataGrid.saveEditData();
+    }
+
+    function eliminarDetail(e) {
+        let dataGrid = $("#detail").dxDataGrid("instance")
+        dataGrid.beginUpdate();
+        var keys = dataGrid.getSelectedRowKeys().reverse();
+        $.each(keys, function (i, key) {
+            var index = dataGrid.getRowIndexByKey(key);
+            dataGrid.deleteRow(index);
+            dataGrid.refresh();
+        });
+        dataGrid.endUpdate();
+        dataGrid.saveEditData();
+    }
+
+    function onRowInserted(e) {
+        console.log(e)
+        let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+        let maxValue = 0;
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].Id > maxValue) {
+                maxValue = array[i].Id;
+            }
+        }
+
+        e.key = maxValue++;
+        e.data.Id = maxValue;
+    }
+
+    function refreshTreeList() {
+        let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+
+        let TotalDebito = 0
+        let TotalCredito = 0
+
+        let arrayMultilibro = new Array();
+        let arraySucursal = new Array();
+        for (let i = 0; i < array.length; i++) {
+            insertMultilibroArray(arrayMultilibro, array[i]);
+            insertSucursalArray(arraySucursal, array[i]);
+            if (array[i].Esdebito === true) {
+                TotalDebito = TotalDebito + array[i].Valor
+            }
+            else {
+                TotalCredito = TotalCredito + array[i].Valor
+            }
+        }
+
+        let TotalDiferencia = parseFloat( TotalDebito) - parseFloat( TotalCredito);
+
+        var tableBoby = ``;
+        tableBoby+=`<tr id="multi" onclick="onClickMulti()" style="background: #73879c;">
+                <td>Multilbro</td>
+                <td>`+ TotalDebito + `</td>
+                <td>`+ TotalCredito + `</td>
+                <td>`+ TotalDiferencia +`</td>
+            </tr >`;
+        for (let i = 0; i < arrayMultilibro.length; i++) {
+            let multilibro = arrayMultilibro[i].Idmultilibro;
+            let credito = arrayMultilibro[i].credito;
+            let debito = arrayMultilibro[i].debito;
+            let str=`<tr class="showMultiLibro">
+                <td>`+ multilibro + `</td>
+                <td>`+ debito + `</td>
+                <td>`+ credito + `</td>
+                <td>`+ (debito - credito) +`</td>
+            </tr >`;
+            tableBoby+=str
+        }
+
+        tableBoby+=`<tr id="sucursal" onclick="onClickSucursal()" style="background: #73879c;">
+                <td>Sucursal</td>
+                <td>`+ TotalDebito + `</td>
+                <td>`+ TotalCredito + `</td>
+                <td>`+ TotalDiferencia +`</td>
+            </tr >`;
+        for (let i = 0; i < arraySucursal.length; i++) {
+            let sucursal = arraySucursal[i].Idsucursal;
+            let credito = arraySucursal[i].credito;
+            let debito = arraySucursal[i].debito;
+            let str=`<tr class="showSucursal">
+                <td>`+ sucursal + `</td>
+                <td>`+ debito + `</td>
+                <td>`+ credito + `</td>
+                <td>`+ (debito - credito) +`</td>
+            </tr >`;
+            tableBoby+=str
+        }
+        $("#tableBody").html(tableBoby);
+    }
+
+    function refreshTree(e) {
+        refreshTreeList()
+    }
+
+    function insertMultilibroArray(array, obj) {
+        let ban = false;
+        for (let i = 0; i<array.length && ban == false; i++) {
+            if (obj.Idmultilibro === array[i].Idmultilibro) {
+                if (obj.Esdebito === true) {
+                    array[i].debito += obj.Valor;
+                }
+                else {
+                    array[i].credito += obj.Valor;
+                }
+            }
+        }
+
+        if (ban == false) {
+            let temp = {}
+            temp.Idmultilibro = obj.Idmultilibro
+            if (obj.Esdebito === true) {
+                temp.debito = obj.Valor;
+                temp.credito = 0;
+            }
+            else {
+                temp.credito = obj.Valor;
+                temp.debito = 0;
+            }
+            array.push(temp)
+        }
+    }
+
+    function insertSucursalArray(array, obj) {
+        let ban = false;
+        for (let i = 0; i<array.length && ban == false; i++) {
+            if (obj.Idsucursal === array[i].Idsucursal) {
+                if (obj.Esdebito === true) {
+                    array[i].debito += obj.Valor;
+                }
+                else {
+                    array[i].credito += obj.Valor;
+                }
+            }
+        }
+
+        if (ban == false) {
+            let temp = {}
+            temp.Idsucursal = obj.Idsucursal
+            if (obj.Esdebito === true) {
+                temp.debito = obj.Valor;
+                temp.credito = 0;
+            }
+            else {
+                temp.credito = obj.Valor;
+                temp.debito = 0;
+            }
+            array.push(temp)
+        }
+    }
+
+    function onClickMulti() {
+        if (showMulti == false) {
+            $(".showMultiLibro").show()
+            showMulti = true;
+        }
+        else {
+            $(".showMultiLibro").hide()
+            showMulti = false;
+        }
+    }
+
+    function onClickSucursal() {
+        if (showSucursal == false) {
+            $(".showSucursal").show()
+            showSucursal = true;
+        }
+        else {
+            $(".showSucursal").hide()
+            showSucursal = false;
+        }
+    }
+    
 </script>
 @foreach (var item in Model.Error)
 {
     <h6 style="color:red">@item</h6>
 }
-@*@using (Html.BeginForm("Create", "DocumentoContable", FormMethod.Post))*@
 @using (Html.BeginForm("Create", "DocumentoContable", FormMethod.Post, new { id = "editContable" }))
 {
     @Html.HiddenFor(m => m.Id)
@@ -279,39 +483,39 @@
                 .ValueExpr("Id")
                 .SearchEnabled(true)
                 .ItemTemplate(@<text>
-                <div class="custom-item">
-                    <div><%= Codigo %> <%= Nombre %> </div>
-                </div>
+                            <div class="custom-item">
+                                <div><%= Codigo %> <%= Nombre %> </div>
+                            </div>
                 </text>)).IsRequired(true);
 
-         formItems1.AddSimpleFor(m => m.Idtipodocumento)
-         .Editor(e => e.SelectBox()
-         .DataSource(d => d.WebApi()
-         .Controller("TipoDocumentoWebApi")
-         .LoadAction("Get").Key("Id"))
-         .SearchExpr(new[] { "Prefijo", "Nombre" })
-         .DisplayExpr(new JS("lookup_displayExprtipo"))
-         .ValueExpr("Id")
-         .Placeholder("Seleccionar...")
-         .SearchEnabled(true)
-         .ItemTemplate(@<text>
-                <div class="custom-item">
-                    <div><%= Prefijo %> - <%= Nombre %> </div>
-                </div>
-        </text>)).IsRequired(true);
+  formItems1.AddSimpleFor(m => m.Idtipodocumento)
+  .Editor(e => e.SelectBox()
+  .DataSource(d => d.WebApi()
+  .Controller("TipoDocumentoWebApi")
+  .LoadAction("Get").Key("Id"))
+  .SearchExpr(new[] { "Prefijo", "Nombre" })
+  .DisplayExpr(new JS("lookup_displayExprtipo"))
+  .ValueExpr("Id")
+  .Placeholder("Seleccionar...")
+  .SearchEnabled(true)
+  .ItemTemplate(@<text>
+                        <div class="custom-item">
+                            <div><%= Prefijo %> - <%= Nombre %> </div>
+                        </div>
+</text>)).IsRequired(true);
 
- formItems1.AddSimpleFor(x => x.Nrodocumento);
+formItems1.AddSimpleFor(x => x.Nrodocumento);
 
- formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
-     e.SelectBox()
-     .DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
-     .SearchExpr(new[] { "Identificacion", "Nombreunido" })
-     .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
-     .DisplayExpr(new JS("lookup_displayExpr1"))
-     .ValueExpr("Id")
-     .Placeholder("Seleccionar...")
-     .SearchEnabled(true)
-     .ItemTemplate(
+formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
+e.SelectBox()
+.DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+.SearchExpr(new[] { "Identificacion", "Nombreunido" })
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExpr1"))
+.ValueExpr("Id")
+.Placeholder("Seleccionar...")
+.SearchEnabled(true)
+.ItemTemplate(
     @<text>
         <div class="custom-item">
             <div><%= Identificacion %> - <%= Nombreunido %> </div>
@@ -330,9 +534,9 @@ e.SelectBox()
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Identificacion %> - <%= Nombreunido %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Identificacion %> - <%= Nombreunido %> </div>
+                </div>
 </text>))
 .IsRequired(true);
 
@@ -350,9 +554,9 @@ formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox()
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Codigo %> - <%= Nombre %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Codigo %> - <%= Nombre %> </div>
+                </div>
 </text>))
 .IsRequired(true);
 
@@ -365,9 +569,9 @@ formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Codigo %> - <%= Nombre %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Codigo %> - <%= Nombre %> </div>
+                </div>
 </text>))
 .IsRequired(true);
 
@@ -379,9 +583,9 @@ formItems1.AddSimpleFor(m => m.IdMoneda)
 .ValueExpr("Id")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Sigla %> - <%= Nombre %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Sigla %> - <%= Nombre %> </div>
+                </div>
 </text>)
 .ID("moneySelected")
 )
@@ -430,108 +634,131 @@ formItems1.AddSimpleFor(m => m.DocumentosQueReferencian)
 .ID("documentosQueReferencian")
 ).IsRequired(false);
 
-formItems1.AddSimpleFor(
-m => m.IsCuadrado)
-.Editor(e => e.TextBox().ID("escuadrado")
-.Visible(true))
-.Visible(false);
+formItems1.AddSimpleFor(m => m.IsCuadrado).Editor(e => e.TextBox().ID("escuadrado").Visible(true).OnInitialized(@"ocultar")).CssClass("display");
 }
 );
 
 formItems.AddSimple()
 .Template(@<text>
-        @(Html.DevExtreme()
-            .DataGrid<AuxiliarContableViewModel>()
-            .ID("grid")
-            .ShowBorders(true)
-            .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
-            //.KeyExpr(new string[] { "OrderID" })
-            //.KeyExpr(new string[] { "Id" })
-            .DataSource(@Model.ListaAuxiliarContable, "Id")
-            .GroupPanel(gp => gp.EmptyPanelText("hola"))
-            //.DateSerializationFormat("MM-dd-yyyy")
-            .Columns(columns =>
-                                {
-                columns.Add()
-                .DataField("Idauxiliar")
-                .Caption("Auxiliar")
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("aux_template"))
-                //.Fixed(true)
-                ;
-                columns.AddFor(m => m.Idtercero)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("ter_template"))
-                //.Fixed(true)
-                ;
-                columns.AddFor(m => m.Idmultilibro)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("mul_template"))
-                //.Fixed(true)
-                ;
-                columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("suc_template"))
-                //.Fixed(true)
-                ;
-                columns.AddFor(m => m.Valor)
-                //.Fixed(true)
-                .EditCellTemplate(new TemplateName("val_template"))
-                ;
-                columns.AddFor(m => m.ValorAlterno)
-                .EditCellTemplate(new TemplateName("val_alterno_template")).CalculateCellValue(@"calcularValorAlterno");
+                @(Html.DevExtreme()
+                .DataGrid<AuxiliarContableViewModel>()
+                .ID("grid")
+                .ShowBorders(true)
+                .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
+                //.KeyExpr(new string[] { "OrderID" })
+                //.KeyExpr(new string[] { "Id" })
+                .DataSource(@Model.ListaAuxiliarContable, new string[] { "Id" })
+                .GroupPanel(gp => gp.EmptyPanelText("hola"))
+                //.DateSerializationFormat("MM-dd-yyyy")
+                .Columns(columns =>
+                {
+                    columns.Add()
+                    .DataField("Idauxiliar")
+                    .Caption("Auxiliar")
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("aux_template"))
+                    //.Fixed(true)
+                    ;
+                    columns.AddFor(m => m.Idtercero)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("ter_template"))
+                    //.Fixed(true)
+                    ;
+                    columns.AddFor(m => m.Idmultilibro)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("mul_template"))
+                    //.Fixed(true)
+                    ;
+                    columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("suc_template"))
+                    //.Fixed(true)
+                    ;
+                    columns.AddFor(m => m.Valor)
+                    //.Fixed(true)
+                    .EditCellTemplate(new TemplateName("val_template"))
+                    ;
+                    columns.AddFor(m => m.ValorAlterno)
+                    .EditCellTemplate(new TemplateName("val_alterno_template")).CalculateCellValue(@"calcularValorAlterno");
 
-                columns.AddFor(m => m.Esdebito);
+                    columns.AddFor(m => m.Esdebito);
 
-                columns.AddFor(m => m.Notas);
+                    columns.AddFor(m => m.Notas);
 
-                columns.AddFor(m => m.Idunidadnegocio)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("un_template"));
+                    columns.AddFor(m => m.Idunidadnegocio)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("un_template"));
 
-                columns.AddFor(m => m.Idccostos)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("cc_template"));
+                    columns.AddFor(m => m.Idccostos)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cc_template"));
 
-                columns.AddFor(m => m.Idfe)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("fe_template"));
+                    columns.AddFor(m => m.Idfe)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("fe_template"));
 
-                columns.AddFor(m => m.Idproyecto)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("pro_template"));
+                    columns.AddFor(m => m.Idproyecto)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("pro_template"));
 
-                columns.AddFor(m => m.Idcontrolfiscal)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("cfi_template"));
+                    columns.AddFor(m => m.Idcontrolfiscal)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cfi_template"));
 
-                columns.AddFor(m => m.Doccruce);
+                    columns.AddFor(m => m.Doccruce);
 
-                columns.AddFor(m => m.Nrocruce);
+                    columns.AddFor(m => m.Nrocruce);
 
-                columns.AddFor(m => m.Fechavencimiento);
+                    columns.AddFor(m => m.Fechavencimiento);
 
-                columns.AddFor(m => m.Periodovencimiento);
+                    columns.AddFor(m => m.Periodovencimiento);
 
-                columns.AddFor(m => m.Refbanco);
+                    columns.AddFor(m => m.Refbanco);
 
-                columns.AddFor(m => m.IdTerceroDos)
-                .ShowEditorAlways(true)
-                .EditCellTemplate(new TemplateName("ter2_template"));
-            })
-            .Paging(paging => paging.Enabled(false))
-            .FilterRow(f => f.Visible(true))
-            .HeaderFilter(f => f.Visible(true))
-            .GroupPanel(p => p.Visible(true))
-            .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
-            .RemoteOperations(true)
-            .AllowColumnResizing(true)
-            .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
-            .ColumnWidth(200)
-            .FocusedRowEnabled(true)
-            .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
+                    columns.AddFor(m => m.IdTerceroDos)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("ter2_template"));
+                })
+                .Paging(paging => paging.Enabled(false))
+                .FilterRow(f => f.Visible(true))
+                .HeaderFilter(f => f.Visible(true))
+                .GroupPanel(p => p.Visible(true))
+                .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
+                .RemoteOperations(true)
+                .AllowColumnResizing(true)
+                .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+                .ColumnWidth(200)
+                .FocusedRowEnabled(true)
+                .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
+                .Selection(s => s.Mode(SelectionMode.Multiple))
+                .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
+                .OnRowInserted("onRowInserted")
+                .OnRowUpdated("refreshTree")
+                .OnContentReady("refreshTree")
+                )
+                <br />
+                <div>
+                    @(Html.DevExtreme().Button()
+                        .Text("Eliminar")
+                        .Type(ButtonType.Danger)
+                        .StylingMode(ButtonStylingMode.Contained)
+                        .Width(120)
+                        .OnClick("eliminar")
+                    )
+                </div>
+                <br />
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                            <th></th>
+                            <th>Debito</th>
+                            <th>Credito</th>
+                            <th>Diferencia</th>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
 
-        //.OnToolbarPreparing("toolbar")
-        )
 </text>);
 }))
 }
@@ -767,15 +994,106 @@ formItems.AddSimple()
 
 @using (Html.DevExtreme().NamedTemplate("MaterdelailAuxContableDetail"))
 {
-    //AuxiliarContableViewMode
-    @(Html.DevExtreme().DataGrid<ImpuestoORetencionViewModel>()
-        .ShowBorders(true)
-        .LoadPanel(l => l.Enabled(true))
-        .Columns(column =>
-                {
-            column.AddFor(m => m.IdNultilibro);
-        })
-        .DataSource(d => d.WebApi().
-            Controller("ImpuestoORetencionWebApi")
-            .LoadAction("getImpuestoORetenciones")
-            .LoadParams(new { id = new JS("data.Id") }
+    @(Html.DevExtreme()
+                .DataGrid<ImpuestoORetencionViewModel>()
+                .DataSource(new JS("data.ListaImpuestos"))
+                .ID("detail")
+                .KeyExpr(new string[] { "Id" })
+                .ShowBorders(true)
+                .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
+                .GroupPanel(gp => gp.EmptyPanelText("hola"))
+                .Columns(columns =>
+                        {
+                    //IMPUESTO / RETENCION
+                    columns.AddFor(m => m.EsRetencion);
+                    //CODIGO)
+                    columns.AddFor(m => m.Codigo).EditCellTemplate(new TemplateName("codigco_template"));
+                    columns.AddFor(m => m.Porcentaje);
+                    columns.AddFor(m => m.BaseImpuesto);
+                    columns.AddFor(m => m.Valor)
+                    .EditCellTemplate(new TemplateName("val_template"));
+                    columns.AddFor(m => m.Notas);
+                    columns.AddFor(m => m.IdTercero)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate("ter_template");
+                    columns.AddFor(m => m.IdMultilibro)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("mul_template"));
+                    columns.AddFor(m => m.IdSucursal)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("suc_template"));
+                    columns.AddFor(m => m.IdUnidadNegocio)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("un_template"));
+                    columns.AddFor(m => m.IdCentroCosto)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cc_template"));
+                    columns.AddFor(m => m.IdProyecto)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("pro_template"));
+                    columns.AddFor(m => m.Idcontrolfiscal)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cfi_template"));
+                    //FLUJO EFECTIVO
+                    columns.AddFor(m => m.Idfe)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("fe_template"));
+                    //PREFIJO DOC
+                    columns.AddFor(m => m.Periodovencimiento);
+                    //DOC. CRUCE
+                    columns.AddFor(m => m.Doccruce);
+                    //NO CRUCE	FECHA VENCIMIENTO
+                    columns.AddFor(m => m.Nrocruce);
+                    //PERIODO VENCIMIENTO
+                    columns.AddFor(m => m.Periodovencimiento);
+                    //REF. BANCO
+                    columns.AddFor(m => m.Refbanco);
+                    //TERCERO 2
+                    columns.AddFor(m => m.IdTerceroDos)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("ter2_template"));
+                })
+                .Paging(paging => paging.Enabled(false))
+                .FilterRow(f => f.Visible(true))
+                .HeaderFilter(f => f.Visible(true))
+                .GroupPanel(p => p.Visible(true))
+                .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
+                .RemoteOperations(true)
+                .AllowColumnResizing(true)
+                .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+                .ColumnWidth(200)
+                .FocusedRowEnabled(true)
+                .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
+                .Selection(s => s.Mode(SelectionMode.Multiple))
+    )
+
+    <div>
+        @(Html.DevExtreme().Button()
+            .Text("Eliminar")
+            .Type(ButtonType.Danger)
+            .StylingMode(ButtonStylingMode.Contained)
+            .Width(120)
+            .OnClick("eliminarDetail")
+        )
+    </div>
+}
+
+@using (Html.DevExtreme().NamedTemplate("codigco_template"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Idsucursal"))
+        .SearchExpr(new string[] { "Codigo", "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("CodigoImpuestoWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Codigo %> - <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
