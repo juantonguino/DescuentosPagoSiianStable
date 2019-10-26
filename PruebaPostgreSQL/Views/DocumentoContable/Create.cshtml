@@ -245,67 +245,84 @@
     }
 
     function refreshTreeList() {
-        let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+        $.get("/api/UtilsWebApi/getListSucursalMultilibro", function(data, status){
+            console.log(data)
+            let array = $("#grid").dxDataGrid("instance").getDataSource()._items
 
-        let TotalDebito = 0
-        let TotalCredito = 0
+            let TotalDebito = 0
+            let TotalCredito = 0
 
-        let arrayMultilibro = new Array();
-        let arraySucursal = new Array();
-        for (let i = 0; i < array.length; i++) {
-            insertMultilibroArray(arrayMultilibro, array[i]);
-            insertSucursalArray(arraySucursal, array[i]);
-            if (array[i].Esdebito === true) {
-                TotalDebito = TotalDebito + array[i].Valor
+            let arrayMultilibro = new Array();
+            let arraySucursal = new Array();
+            for (let i = 0; i < array.length; i++) {
+                insertMultilibroArray(arrayMultilibro, array[i]);
+                insertSucursalArray(arraySucursal, array[i]);
+                if (array[i].Esdebito === true) {
+                    TotalDebito = TotalDebito + array[i].Valor
+                }
+                else {
+                    TotalCredito = TotalCredito + array[i].Valor
+                }
             }
-            else {
-                TotalCredito = TotalCredito + array[i].Valor
+
+            let TotalDiferencia = parseFloat( TotalDebito) - parseFloat( TotalCredito);
+
+            var tableBoby = ``;
+            tableBoby+=`<tr id="multi" onclick="onClickMulti()" style="background: #73879c;">
+                    <td>Multilbro</td>
+                    <td>`+ TotalDebito + `</td>
+                    <td>`+ TotalCredito + `</td>
+                    <td>`+ TotalDiferencia +`</td>
+                </tr >`;
+            for (let i = 0; i < arrayMultilibro.length; i++) {
+                console.log(findByIdArray(data[0], arrayMultilibro[i].Idmultilibro))
+                let multilibro = findByIdArray(data[0], arrayMultilibro[i].Idmultilibro).Nombre;//arrayMultilibro[i].Idmultilibro;
+                let credito = arrayMultilibro[i].credito;
+                let debito = arrayMultilibro[i].debito;
+                let str = `<tr class="showMultiLibro">
+                    <td>`+ multilibro + `</td>
+                    <td>`+ debito + `</td>
+                    <td>`+ credito + `</td>
+                    <td>`+ (debito - credito) +`</td>
+                </tr >`;
+                tableBoby+=str
             }
-        }
 
-        let TotalDiferencia = parseFloat( TotalDebito) - parseFloat( TotalCredito);
-
-        var tableBoby = ``;
-        tableBoby+=`<tr id="multi" onclick="onClickMulti()" style="background: #73879c;">
-                <td>Multilbro</td>
-                <td>`+ TotalDebito + `</td>
-                <td>`+ TotalCredito + `</td>
-                <td>`+ TotalDiferencia +`</td>
-            </tr >`;
-        for (let i = 0; i < arrayMultilibro.length; i++) {
-            let multilibro = arrayMultilibro[i].Idmultilibro;
-            let credito = arrayMultilibro[i].credito;
-            let debito = arrayMultilibro[i].debito;
-            let str=`<tr class="showMultiLibro">
-                <td>`+ multilibro + `</td>
-                <td>`+ debito + `</td>
-                <td>`+ credito + `</td>
-                <td>`+ (debito - credito) +`</td>
-            </tr >`;
-            tableBoby+=str
-        }
-
-        tableBoby+=`<tr id="sucursal" onclick="onClickSucursal()" style="background: #73879c;">
-                <td>Sucursal</td>
-                <td>`+ TotalDebito + `</td>
-                <td>`+ TotalCredito + `</td>
-                <td>`+ TotalDiferencia +`</td>
-            </tr >`;
-        for (let i = 0; i < arraySucursal.length; i++) {
-            let sucursal = arraySucursal[i].Idsucursal;
-            let credito = arraySucursal[i].credito;
-            let debito = arraySucursal[i].debito;
-            let str=`<tr class="showSucursal">
-                <td>`+ sucursal + `</td>
-                <td>`+ debito + `</td>
-                <td>`+ credito + `</td>
-                <td>`+ (debito - credito) +`</td>
-            </tr >`;
-            tableBoby+=str
-        }
-        $("#tableBody").html(tableBoby);
+            tableBoby+=`<tr id="sucursal" onclick="onClickSucursal()" style="background: #73879c;">
+                    <td>Sucursal</td>
+                    <td>`+ TotalDebito + `</td>
+                    <td>`+ TotalCredito + `</td>
+                    <td>`+ TotalDiferencia +`</td>
+                </tr >`;
+            for (let i = 0; i < arraySucursal.length; i++) {
+                //findByIdArray(data[0], arrayMultilibro[i].Idmultilibro).Nombre
+                //findByIdArray(data[1], arraySucursal[i].Idsucursal).Nombre
+                let sucursal = findByIdArray(data[1], arraySucursal[i].Idsucursal).Nombre;
+                let credito = arraySucursal[i].credito;
+                let debito = arraySucursal[i].debito;
+                let str=`<tr class="showSucursal">
+                    <td>`+ sucursal + `</td>
+                    <td>`+ debito + `</td>
+                    <td>`+ credito + `</td>
+                    <td>`+ (debito - credito) +`</td>
+                </tr >`;
+                tableBoby+=str
+            }
+            $("#tableBody").html(tableBoby);
+        });
+        
     }
 
+    function findByIdArray(arrayData, id) {
+        console.log(arrayData)
+        console.log(id)
+        for (i = 0; i < arrayData.length; i++) {
+            if (arrayData[i].Id === id) {
+                return arrayData[i];
+            }
+        }
+        return null;
+    }
     function refreshTree(e) {
         refreshTreeList()
     }
