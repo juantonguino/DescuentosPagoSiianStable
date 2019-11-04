@@ -12,7 +12,7 @@ namespace Entities.Contabilidad.ViewModels
     {
         public int Id;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public bool? EsRetencion { get; set; }
+        public int EsRetencion { get; set; }
         [Display(Name = "Codigo")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Codigo { get; set; }
@@ -60,7 +60,7 @@ namespace Entities.Contabilidad.ViewModels
 
         public ImpuestoORetencionViewModel() { }
 
-        public ImpuestoORetencionViewModel(bool? esRetencion, string codigo, decimal? porcentaje, decimal? baseImpuesto, decimal? valor, string notas, int? idTercero, int? idMultilibro, int? idSucursal, int? idUnidadNegocio, int? idCentroCosto, int? idProyecto, int? idcontrolfiscal, int? idfe, string doccruce, string nrocruce, DateTime? fechavencimiento, int? periodovencimiento, string refbanco, int? idTerceroDos)
+        public ImpuestoORetencionViewModel(int esRetencion, string codigo, decimal? porcentaje, decimal? baseImpuesto, decimal? valor, string notas, int? idTercero, int? idMultilibro, int? idSucursal, int? idUnidadNegocio, int? idCentroCosto, int? idProyecto, int? idcontrolfiscal, int? idfe, string doccruce, string nrocruce, DateTime? fechavencimiento, int? periodovencimiento, string refbanco, int? idTerceroDos)
         {
             EsRetencion = esRetencion;
             Codigo = codigo;

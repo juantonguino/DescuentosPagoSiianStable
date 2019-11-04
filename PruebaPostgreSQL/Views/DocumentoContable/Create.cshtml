@@ -8,16 +8,12 @@
         display: none !important;
     }
 </style>
-
 <h2>Documento Contable</h2>
 <script>
     var showMulti = false;
-
     var showSucursal = false;
-
     //AQUI SE ESTABLECE LA MONEDA POR DEFECTO
     const DEFAULT_MONEY = 1;
-
     //Variable creada para seterar el valor  digirado cpor el usuario
     var valor = 0;
     var valorTrm = 0;
@@ -119,10 +115,10 @@
         for (i = 0; i < array.length; i++) {
             let objItem = array[i];
             if (objItem.objItem === false) {
-                valDebitos = valDebitos + parseInt(objItem.ValorAlterno);
+                valDebitos = valDebitos + parseInt(objItem.Valor);
             }
             else {
-                valCretidtos = valCretidtos + parseInt(objItem.ValorAlterno);
+                valCretidtos = valCretidtos + parseInt(objItem.Valor);
             }
         }
 
@@ -138,11 +134,13 @@
         $(".showMultiLibro").hide()
         $(".showSucursal").hide()
 
+        //aqui se rededine el tamaño de las columnas
+        //$("#grid").dxDataGrid("instance").columnOption(2, "width", 50);
+
         //aqui se ocuelta el campo escuadrado
         $("[data-pdsa-action]").on("click", function (e) {
             e.preventDefault();
             $("#Operacion").val($(this).data("pdsa-action"));
-
             $("#grid").dxDataGrid("instance").getDataSource().load().done(function (items) {
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
@@ -153,6 +151,16 @@
                     }
                 }
                 refreshTreeList();
+                console.log($("#grid").dxDataGrid("instance"))
+                $("#grid").dxDataGrid("instance").columnOption("command:edit", "width", 75)
+                $("#grid").dxDataGrid("instance").columnOption(0, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(1, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(2, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(3, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(4, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(5, "width", 75);
+                $("#grid").dxDataGrid("instance").columnOption(6, "width", 75);
+                $("#grid").dxDataGrid("instance").refresh()
                 $("#editContable").submit();
 
             });
@@ -167,25 +175,26 @@
     }
 
     function calcularValorAlterno(e) {
+        let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
+        let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
         if (e !== null) {
-            moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
-            valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
-            if (moneySelected !== DEFAULT_MONEY) {
-                return valorTrm * valor;
+            //if (e.Valor == parseFloat(e.ValorAlterno)) {
+            //    return e.Valor;
+            //}
+            if (e.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
+                e.Valor = valorTrm * parseFloat(e.ValorAlterno);
+                return e.Valor;
             }
             else {
-                return valor
+                e.Valor = parseFloat(e.ValorAlterno)
+                return e.Valor;
             }
-        }
-        else {
-            return 0;
         }
     }
     var event;
     function changeValue(e) {
         event = e;
         //setValue(args.value);
-        console.log(e)
         //e.set(e.value);
         //$("$moneySelected").dxSelectBox("instance");
         //let moneySelected=$("#moneySelected").dxSelectBox("instance");
@@ -199,7 +208,6 @@
 
     function ocultar(e) {
         //let temp=e.elementparent().parent().parent().parent();
-        //console.log(temp)
         //temp.hide()
         //e.css('display','none')
     }
@@ -231,7 +239,6 @@
     }
 
     function onRowInserted(e) {
-        console.log(e)
         let array = $("#grid").dxDataGrid("instance").getDataSource()._items
         let maxValue = 0;
         for (let i = 0; i < array.length; i++) {
@@ -245,8 +252,7 @@
     }
 
     function refreshTreeList() {
-        $.get("/api/UtilsWebApi/getListSucursalMultilibro", function(data, status){
-            console.log(data)
+        $.get("/api/UtilsWebApi/getListSucursalMultilibro", function (data, status) {
             let array = $("#grid").dxDataGrid("instance").getDataSource()._items
 
             let TotalDebito = 0
@@ -265,17 +271,16 @@
                 }
             }
 
-            let TotalDiferencia = parseFloat( TotalDebito) - parseFloat( TotalCredito);
+            let TotalDiferencia = parseFloat(TotalDebito) - parseFloat(TotalCredito);
 
             var tableBoby = ``;
-            tableBoby+=`<tr id="multi" onclick="onClickMulti()" style="background: #73879c;">
+            tableBoby += `<tr id="multi" onclick="onClickMulti()" style="background: #73879c;">
                     <td>Multilbro</td>
                     <td>`+ TotalDebito + `</td>
                     <td>`+ TotalCredito + `</td>
-                    <td>`+ TotalDiferencia +`</td>
+                    <td>`+ TotalDiferencia + `</td>
                 </tr >`;
             for (let i = 0; i < arrayMultilibro.length; i++) {
-                console.log(findByIdArray(data[0], arrayMultilibro[i].Idmultilibro))
                 let multilibro = findByIdArray(data[0], arrayMultilibro[i].Idmultilibro).Nombre;//arrayMultilibro[i].Idmultilibro;
                 let credito = arrayMultilibro[i].credito;
                 let debito = arrayMultilibro[i].debito;
@@ -283,16 +288,16 @@
                     <td>`+ multilibro + `</td>
                     <td>`+ debito + `</td>
                     <td>`+ credito + `</td>
-                    <td>`+ (debito - credito) +`</td>
+                    <td>`+ (debito - credito) + `</td>
                 </tr >`;
-                tableBoby+=str
+                tableBoby += str
             }
 
-            tableBoby+=`<tr id="sucursal" onclick="onClickSucursal()" style="background: #73879c;">
+            tableBoby += `<tr id="sucursal" onclick="onClickSucursal()" style="background: #73879c;">
                     <td>Sucursal</td>
                     <td>`+ TotalDebito + `</td>
                     <td>`+ TotalCredito + `</td>
-                    <td>`+ TotalDiferencia +`</td>
+                    <td>`+ TotalDiferencia + `</td>
                 </tr >`;
             for (let i = 0; i < arraySucursal.length; i++) {
                 //findByIdArray(data[0], arrayMultilibro[i].Idmultilibro).Nombre
@@ -300,22 +305,20 @@
                 let sucursal = findByIdArray(data[1], arraySucursal[i].Idsucursal).Nombre;
                 let credito = arraySucursal[i].credito;
                 let debito = arraySucursal[i].debito;
-                let str=`<tr class="showSucursal">
+                let str = `<tr class="showSucursal">
                     <td>`+ sucursal + `</td>
                     <td>`+ debito + `</td>
                     <td>`+ credito + `</td>
-                    <td>`+ (debito - credito) +`</td>
+                    <td>`+ (debito - credito) + `</td>
                 </tr >`;
-                tableBoby+=str
+                tableBoby += str
             }
             $("#tableBody").html(tableBoby);
         });
-        
+
     }
 
     function findByIdArray(arrayData, id) {
-        console.log(arrayData)
-        console.log(id)
         for (i = 0; i < arrayData.length; i++) {
             if (arrayData[i].Id === id) {
                 return arrayData[i];
@@ -329,7 +332,7 @@
 
     function insertMultilibroArray(array, obj) {
         let ban = false;
-        for (let i = 0; i<array.length && ban == false; i++) {
+        for (let i = 0; i < array.length && ban == false; i++) {
             if (obj.Idmultilibro === array[i].Idmultilibro) {
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
@@ -357,7 +360,7 @@
 
     function insertSucursalArray(array, obj) {
         let ban = false;
-        for (let i = 0; i<array.length && ban == false; i++) {
+        for (let i = 0; i < array.length && ban == false; i++) {
             if (obj.Idsucursal === array[i].Idsucursal) {
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
@@ -404,7 +407,22 @@
             showSucursal = false;
         }
     }
-    
+    //funcion llave prescionada
+    $(document).keydown(function (e) {
+        if (e.ctrlKey && e.which == 40) {
+            $("#grid").dxDataGrid("instance").addRow()
+        }
+    })
+
+
+    //fucion al inicializar un nuevo registro
+    function initNewRow(e) {
+        e.data.Idsucursal = $('#idSucursal').dxSelectBox('instance').option('value')
+        e.data.Idunidadnegocio = $('#idUnidadNegocio').dxSelectBox('instance').option('value')
+        e.data.Idccostos = $('#idCentroCostos').dxSelectBox('instance').option('value')
+        e.data.Idtercero = $('#idTercero').dxSelectBox('instance').option('value')
+        console.log(e);
+    }
 </script>
 @foreach (var item in Model.Error)
 {
@@ -483,79 +501,84 @@
             </div>
         </div>
     </div>
-
     @(Html.DevExtreme()
         .Form<DocumentoContableParaGuardarViewModel>()
         .ValidationGroup("documentoContableViewModel")
         .FormData(Model)
         .Items(formItems =>
                 {
-        formItems.AddGroup().Caption("Datos de Documento").ColCount(3).Items(formItems1 =>
-                    {
-            formItems1.AddSimpleFor(m => m.Idsucursal)
-                .Editor(e => e.SelectBox().DataSource(ds => ds.WebApi().Controller("SucursalWebApi").LoadAction("Get").Key("Id"))
-                .SearchExpr(new[] { "Codigo", "Nombre" })
-                .DisplayExpr("Nombre")
-                .Placeholder("Seleccionar...")
-                .ValueExpr("Id")
-                .SearchEnabled(true)
-                .ItemTemplate(@<text>
-                            <div class="custom-item">
-                                <div><%= Codigo %> <%= Nombre %> </div>
-                            </div>
-                </text>)).IsRequired(true);
+            formItems.AddGroup()
+                .Caption("Datos de Documento")
+                .ColCount(3).Items(formItems1 =>
+                        {
+                    formItems1.AddSimpleFor(m => m.Idsucursal)
+                        .Editor(e =>
+                            e.SelectBox()
+                            .DataSource(ds => ds.WebApi().Controller("SucursalWebApi").LoadAction("Get").Key("Id"))
+                        .ID("idSucursal")
+                        .SearchExpr(new[] { "Codigo", "Nombre" })
+                        .DisplayExpr("Nombre")
+                        .Placeholder("Seleccionar...")
+                        .ValueExpr("Id")
+                        .SearchEnabled(true)
+                        .ItemTemplate(@<text>
+                                    <div class="custom-item">
+                                        <div><%= Codigo %> <%= Nombre %> </div>
+                                    </div>
+                        </text>)).IsRequired(true);
 
-  formItems1.AddSimpleFor(m => m.Idtipodocumento)
-  .Editor(e => e.SelectBox()
-  .DataSource(d => d.WebApi()
-  .Controller("TipoDocumentoWebApi")
-  .LoadAction("Get").Key("Id"))
-  .SearchExpr(new[] { "Prefijo", "Nombre" })
-  .DisplayExpr(new JS("lookup_displayExprtipo"))
-  .ValueExpr("Id")
-  .Placeholder("Seleccionar...")
-  .SearchEnabled(true)
-  .ItemTemplate(@<text>
+                 formItems1.AddSimpleFor(m => m.Idtipodocumento)
+                     .Editor(e => e.SelectBox()
+                     .DataSource(d => d.WebApi()
+                     .Controller("TipoDocumentoWebApi")
+                     .LoadAction("Get").Key("Id"))
+                     .SearchExpr(new[] { "Prefijo", "Nombre" })
+                     .DisplayExpr(new JS("lookup_displayExprtipo"))
+                     .ValueExpr("Id")
+                     .Placeholder("Seleccionar...")
+                     .SearchEnabled(true)
+                     .ItemTemplate(@<text>
                         <div class="custom-item">
                             <div><%= Prefijo %> - <%= Nombre %> </div>
                         </div>
-</text>)).IsRequired(true);
+                    </text>)).IsRequired(true);
 
-formItems1.AddSimpleFor(x => x.Nrodocumento);
+         formItems1.AddSimpleFor(x => x.Nrodocumento);
 
-formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
-e.SelectBox()
-.DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
-.SearchExpr(new[] { "Identificacion", "Nombreunido" })
-.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
-.DisplayExpr(new JS("lookup_displayExpr1"))
-.ValueExpr("Id")
-.Placeholder("Seleccionar...")
-.SearchEnabled(true)
-.ItemTemplate(
-    @<text>
-        <div class="custom-item">
-            <div><%= Identificacion %> - <%= Nombreunido %> </div>
-        </div>
-    </text>)).IsRequired(true);
-
-formItems1.AddSimpleFor(m => m.Estado)
-.Editor(e =>
-e.SelectBox()
-.DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
-.SearchExpr("Nombre")
-.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
-.DisplayExpr("Nombre")
-.Disabled(false)
-.ValueExpr("Id")
-.Placeholder("Seleccionar...")
-.SearchEnabled(true)
-.ItemTemplate(@<text>
+         formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
+             e.SelectBox()
+             .DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+             .ID("idTercero")
+             .SearchExpr(new[] { "Identificacion", "Nombreunido" })
+             .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+             .DisplayExpr(new JS("lookup_displayExpr1"))
+             .ValueExpr("Id")
+             .Placeholder("Seleccionar...")
+             .SearchEnabled(true)
+             .ItemTemplate(
+            @<text>
                 <div class="custom-item">
                     <div><%= Identificacion %> - <%= Nombreunido %> </div>
                 </div>
-</text>))
-.IsRequired(true);
+            </text>)).IsRequired(true);
+
+ formItems1.AddSimpleFor(m => m.Estado)
+     .Editor(e =>
+         e.SelectBox()
+         .DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
+         .SearchExpr("Nombre")
+         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+         .DisplayExpr("Nombre")
+         .Disabled(false)
+         .ValueExpr("Id")
+         .Placeholder("Seleccionar...")
+         .SearchEnabled(true)
+         .ItemTemplate(@<text>
+            <div class="custom-item">
+                <div><%= Identificacion %> - <%= Nombreunido %> </div>
+            </div>
+        </text>))
+ .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.Fechadocumento)
 .Editor(e => e.DateBox());
@@ -565,20 +588,22 @@ formItems1.AddSimpleFor(m => m.Fechacontabilizacion).Editor(e => e.DateBox());
 formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox()
 .DataSource(d => d.WebApi().Controller("AuxiliaresCentroCostosWebApi").Key("Id"))
 .SearchExpr(new[] { "Codigo", "Nombre" })
+.ID("idCentroCostos")
 .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
 .DisplayExpr(new JS("lookup_displayExpraux"))
 .ValueExpr("Id")
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-                <div class="custom-item">
-                    <div><%= Codigo %> - <%= Nombre %> </div>
-                </div>
+    <div class="custom-item">
+        <div><%= Codigo %> - <%= Nombre %> </div>
+    </div>
 </text>))
 .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
 .Editor(e => e.SelectBox().DataSource(d => d.WebApi().Controller("UnidadNegocioWebApi").Key("Id"))
+.ID("idUnidadNegocio")
 .SearchExpr(new[] { "Codigo", "Nombre" })
 .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
 .DisplayExpr(new JS("lookup_displayExpraux"))
@@ -586,9 +611,9 @@ formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-                <div class="custom-item">
-                    <div><%= Codigo %> - <%= Nombre %> </div>
-                </div>
+    <div class="custom-item">
+        <div><%= Codigo %> - <%= Nombre %> </div>
+    </div>
 </text>))
 .IsRequired(true);
 
@@ -600,19 +625,18 @@ formItems1.AddSimpleFor(m => m.IdMoneda)
 .ValueExpr("Id")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-                <div class="custom-item">
-                    <div><%= Sigla %> - <%= Nombre %> </div>
-                </div>
+    <div class="custom-item">
+        <div><%= Sigla %> - <%= Nombre %> </div>
+    </div>
 </text>)
-.ID("moneySelected")
-)
+.ID("moneySelected"))
 .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.Trm)
 .Editor(e => e
 .TextBox()
-.ID("trmSelected")
-).IsRequired(false);
+.ID("trmSelected"))
+.IsRequired(false);
 
 formItems1.AddSimpleFor(m => m.Notas)
 .Editor(e => e
@@ -621,160 +645,150 @@ formItems1.AddSimpleFor(m => m.Notas)
 
 formItems1.AddSimpleFor(m => m.DocumentosRefencia)
 .Editor(e => e.SelectBox()
-//.DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
-//.SearchExpr(new[] { "Sigla", "Nombre" })
-//.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
 .DisplayExpr(new JS("lookup_displayExprmon"))
 .ValueExpr("Id")
 .SearchEnabled(true)
-//.ItemTemplate(@<text>
-//                <div class="custom-item">
-//                    <div><%= Sigla %> - <%= Nombre %> </div>
-//                </div>
-//</text>)
 .ID("documentosReferencia")
 ).IsRequired(false);
 
 formItems1.AddSimpleFor(m => m.DocumentosQueReferencian)
 .Editor(e => e.SelectBox()
-//.DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
-//.SearchExpr(new[] { "Sigla", "Nombre" })
-//.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
 .DisplayExpr(new JS("lookup_displayExprmon"))
 .ValueExpr("Id")
 .SearchEnabled(true)
-//.ItemTemplate(@<text>
-//                <div class="custom-item">
-//                    <div><%= Sigla %> - <%= Nombre %> </div>
-//                </div>
-//</text>)
-.ID("documentosQueReferencian")
-).IsRequired(false);
+.ID("documentosQueReferencian"))
+.IsRequired(false);
 
-formItems1.AddSimpleFor(m => m.IsCuadrado).Editor(e => e.TextBox().ID("escuadrado").Visible(true).OnInitialized(@"ocultar")).CssClass("display");
+formItems1.AddSimpleFor(m => m.IsCuadrado)
+.Editor(e => e.TextBox()
+.ID("escuadrado")
+.Visible(true)
+.OnInitialized(@"ocultar"))
+.CssClass("display");
 }
 );
 
 formItems.AddSimple()
 .Template(@<text>
-                @(Html.DevExtreme()
-                .DataGrid<AuxiliarContableViewModel>()
-                .ID("grid")
-                .ShowBorders(true)
-                .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
-                //.KeyExpr(new string[] { "OrderID" })
-                //.KeyExpr(new string[] { "Id" })
-                .DataSource(@Model.ListaAuxiliarContable, new string[] { "Id" })
-                .GroupPanel(gp => gp.EmptyPanelText("hola"))
-                //.DateSerializationFormat("MM-dd-yyyy")
-                .Columns(columns =>
-                {
-                    columns.Add()
-                    .DataField("Idauxiliar")
-                    .Caption("Auxiliar")
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("aux_template"))
-                    //.Fixed(true)
-                    ;
-                    columns.AddFor(m => m.Idtercero)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("ter_template"))
-                    //.Fixed(true)
-                    ;
-                    columns.AddFor(m => m.Idmultilibro)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("mul_template"))
-                    //.Fixed(true)
-                    ;
-                    columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("suc_template"))
-                    //.Fixed(true)
-                    ;
-                    columns.AddFor(m => m.Valor)
-                    //.Fixed(true)
-                    .EditCellTemplate(new TemplateName("val_template"))
-                    ;
-                    columns.AddFor(m => m.ValorAlterno)
-                    .EditCellTemplate(new TemplateName("val_alterno_template")).CalculateCellValue(@"calcularValorAlterno");
+    @(Html.DevExtreme()
+    .DataGrid<AuxiliarContableViewModel>()
+    .ID("grid")
+    .ShowBorders(true)
+    .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
+    .DataSource(@Model.ListaAuxiliarContable, new string[] { "Id" })
+    .GroupPanel(gp => gp.EmptyPanelText("hola"))
+    .Columns(columns =>
+    {
+        columns.Add()
+        .DataField("Idauxiliar")
+        .Caption("Auxiliar")
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("aux_template")).Width(100)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Esdebito);
+        columns.AddFor(m => m.Idtercero)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("ter_template")).Width(130)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Notas);
+        columns.AddFor(m => m.Idmultilibro)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("mul_template")).Width(120)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Idunidadnegocio)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("un_template"));
+        columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("suc_template")).Width(120)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Idccostos)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cc_template"));
+        columns.AddFor(m => m.ValorAlterno)
+        .EditCellTemplate(new TemplateName("val_alterno_template"))
+        .Width(130)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Idfe)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("fe_template"));
+        columns.AddFor(m => m.Valor)
+        .EditCellTemplate(new TemplateName("val_template")).CalculateCellValue(@"calcularValorAlterno")
+        .Width(130)
+        .Fixed(true);
 
-                    columns.AddFor(m => m.Idproyecto)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("pro_template"));
+        columns.AddFor(m => m.Esdebito);
 
-                    columns.AddFor(m => m.Idcontrolfiscal)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cfi_template"));
+        columns.AddFor(m => m.Notas);
 
-                    columns.AddFor(m => m.Doccruce);
+        columns.AddFor(m => m.Idunidadnegocio)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("un_template"));
 
-                    columns.AddFor(m => m.Nrocruce);
+        columns.AddFor(m => m.Idccostos)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("cc_template"));
 
-                    columns.AddFor(m => m.Fechavencimiento);
+        columns.AddFor(m => m.Idfe)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("fe_template"));
 
-                    columns.AddFor(m => m.Periodovencimiento);
+        columns.AddFor(m => m.Idproyecto)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("pro_template"));
 
-                    columns.AddFor(m => m.Refbanco);
+        columns.AddFor(m => m.Idcontrolfiscal)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("cfi_template"));
 
-                    columns.AddFor(m => m.IdTerceroDos)
-                    .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("ter2_template"));
-                })
-                .Paging(paging => paging.Enabled(false))
-                .FilterRow(f => f.Visible(true))
-                .HeaderFilter(f => f.Visible(true))
-                .GroupPanel(p => p.Visible(true))
-                .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
-                .RemoteOperations(true)
-                .AllowColumnResizing(true)
-                .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
-                .ColumnWidth(200)
-                .FocusedRowEnabled(true)
-                .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
-                .Selection(s => s.Mode(SelectionMode.Multiple))
-                .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
-                .OnRowInserted("onRowInserted")
-                .OnRowUpdated("refreshTree")
-                .OnContentReady("refreshTree")
-                )
-                <br />
-                <div>
-                    @(Html.DevExtreme().Button()
-                        .Text("Eliminar")
-                        .Type(ButtonType.Danger)
-                        .StylingMode(ButtonStylingMode.Contained)
-                        .Width(120)
-                        .OnClick("eliminar")
-                    )
-                </div>
-                <br />
-                <div class="col-md-6">
-                    <table class="table">
-                        <thead>
-                            <th></th>
-                            <th>Debito</th>
-                            <th>Credito</th>
-                            <th>Diferencia</th>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
-                </div>
+        columns.AddFor(m => m.Doccruce);
+
+        columns.AddFor(m => m.Nrocruce);
+
+        columns.AddFor(m => m.Fechavencimiento);
+
+        columns.AddFor(m => m.Periodovencimiento);
+
+        columns.AddFor(m => m.Refbanco);
+
+        columns.AddFor(m => m.IdTerceroDos)
+        .ShowEditorAlways(true)
+        .EditCellTemplate(new TemplateName("ter2_template"));
+    })
+    .Paging(paging => paging.Enabled(false))
+    .FilterRow(f => f.Visible(true))
+    .HeaderFilter(f => f.Visible(true))
+    .GroupPanel(p => p.Visible(true))
+    .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
+    .RemoteOperations(true)
+    .AllowColumnResizing(true)
+    .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+    .ColumnWidth(200)
+    .FocusedRowEnabled(true)
+    .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
+    .Selection(s => s.Mode(SelectionMode.Multiple))
+    .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
+    .OnRowInserted("onRowInserted")
+    .OnRowUpdated("refreshTree")
+    .OnContentReady("refreshTree")
+    .OnInitNewRow("initNewRow")
+    )
+    <br />
+    <div>
+        @(Html.DevExtreme().Button()
+            .Text("Eliminar")
+            .Type(ButtonType.Danger)
+            .StylingMode(ButtonStylingMode.Contained)
+            .Width(120)
+            .OnClick("eliminar")
+        )
+    </div>
+    <br />
+    <div class="col-md-6">
+        <table class="table">
+            <thead>
+            <th></th>
+            <th>Debito</th>
+            <th>Credito</th>
+            <th>Diferencia</th>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
 
 </text>);
 }))
@@ -798,7 +812,11 @@ formItems.AddSimple()
 {
     @(Html.DevExtreme()
         .TextBox()
-        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .OnValueChanged(@"function(args){
+            setValue(args.value);
+            valor=args.value;
+        }")
+        .Value(new JS("data.ValorAlterno"))
         .ID("id_val_alterno_template")
     )
 }
@@ -819,10 +837,8 @@ formItems.AddSimple()
             .OnKeyPress("keyPress")
             .OnKeyDown("keyPress")
             //.OnKeyPress(@"function(args){
-            //    console.log(args)
             //    setValue('');}")
             //.OnKeyDown(@"function(args){
-            //    console.log(args)
             //    setValue('');}")
             .ItemTemplate(@<text>
                         <div class="custom-item">
@@ -1020,9 +1036,10 @@ formItems.AddSimple()
                 .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
                 .GroupPanel(gp => gp.EmptyPanelText("hola"))
                 .Columns(columns =>
-                        {
+                {
                     //IMPUESTO / RETENCION
-                    columns.AddFor(m => m.EsRetencion);
+                    //columns.AddFor(m => m.EsRetencion);
+                    columns.AddFor(m => m.EsRetencion).EditCellTemplate(new TemplateName("tipo_impuesto"));
                     //CODIGO)
                     columns.AddFor(m => m.Codigo).EditCellTemplate(new TemplateName("codigco_template"));
                     columns.AddFor(m => m.Porcentaje);
@@ -1110,6 +1127,26 @@ formItems.AddSimple()
         .ItemTemplate(@<text>
                     <div class="custom-item">
                         <div> <%= Codigo %> - <%= Nombre %> </div>
+                    </div>
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("tipo_impuesto"))
+{
+    @(Html.DevExtreme()
+        .SelectBox()
+        .Value(new JS("data.Esretencion"))
+        .SearchExpr(new string[] { "Id", "Nombre" })
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+        .DataSource(ds => ds.WebApi().Controller("TipoImpuestoWebApi").LoadAction("Get").Key("Id"))
+        .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+        .DisplayExpr("Nombre")
+        .ValueExpr("Id")
+        .SearchEnabled(true)
+        .ItemTemplate(@<text>
+                    <div class="custom-item">
+                        <div> <%= Id %> - <%= Nombre %> </div>
                     </div>
         </text>)
     )

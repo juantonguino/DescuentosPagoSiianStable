@@ -3749,7 +3749,6 @@ C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.VisualStudio.Shell.
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\VSLangProj80.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.VisualStudio.ManagedInterfaces.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.VisualStudio.Debugger.Interop.11.0.dll
-C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\System.Threading.Tasks.Dataflow.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.VisualStudio.GraphModel.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.MSXML.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Microsoft.Build.Utilities.Core.dll
@@ -3761,7 +3760,6 @@ C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\PostgreSQL.AspNet.Identity.En
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Antlr3.Runtime.pdb
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\AutoMapper.pdb
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\AutoMapper.xml
-C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\Devart.Data.xml
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\DevExpress.Data.v19.1.xml
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\DevExpress.DataAccess.v19.1.xml
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\DevExpress.Office.v19.1.Core.xml
@@ -4001,7 +3999,9 @@ C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.csproj
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\XtraReportDescuentos.resources
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.csproj.GenerateResource.cache
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.dll.licenses
-C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.csproj.CoreCompileInputs.cache
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.csproj.CopyComplete
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.dll
 C:\Users\diego\Desktop\final1\PruebaPostgreSQL\obj\Debug\PruebaPostgreSQL.pdb
+C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\es\System.Net.Http.Formatting.resources.dll
+C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\es\System.Web.Http.resources.dll
+C:\Users\diego\Desktop\final1\PruebaPostgreSQL\bin\es\System.Web.Http.WebHost.resources.dll

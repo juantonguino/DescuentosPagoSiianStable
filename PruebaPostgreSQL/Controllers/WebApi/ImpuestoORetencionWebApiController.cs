@@ -30,7 +30,7 @@ namespace PruebaPostgreSQL.Controllers.WebApi
                 Codigo="000",
                 Doccruce="000",
                 Idcontrolfiscal=0,
-                EsRetencion= false,
+                EsRetencion= 1,
                 Fechavencimiento =DateTime.Now,
                 IdCentroCosto=0,
                 Idfe=0,

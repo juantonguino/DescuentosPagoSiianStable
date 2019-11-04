@@ -307,6 +307,7 @@
     <Compile Include="Controllers\WebApi\SucursalWebApiController.cs" />
     <Compile Include="Controllers\WebApi\TerceroMaestroWebApiController.cs" />
     <Compile Include="Controllers\WebApi\TipoDocumentoWebApiController.cs" />
+    <Compile Include="Controllers\WebApi\TipoImpuestoController.cs" />
     <Compile Include="Controllers\WebApi\UnidadesNegocioWebApiController.cs" />
     <Compile Include="Controllers\WebApi\UnidadNegocioWebApiController.cs" />
     <Compile Include="Controllers\WebApi\UtilsWebApiController.cs" />
@@ -338,6 +339,7 @@
     <Compile Include="Models\SucursalViewModel.cs" />
     <Compile Include="Models\TerceroMaestroViewModel.cs" />
     <Compile Include="Models\TipoDocumentoViewModel.cs" />
+    <Compile Include="Models\TipoImpuestoVewModel.cs" />
     <Compile Include="Models\UnidadesNegocioViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reportes\XtraReportDescuentos.cs">
