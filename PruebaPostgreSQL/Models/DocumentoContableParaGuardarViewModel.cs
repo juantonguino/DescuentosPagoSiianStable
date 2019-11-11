@@ -1,3 +1,4 @@
+using PruebaPostgreSQL.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -55,6 +56,19 @@ namespace Entities.Contabilidad.ViewModels
 
         [DisplayName("Documentos Que Referencian")]
         public int? DocumentosQueReferencian { get; set; }
+
+        List<TipoImpuestoVewModel> _tipoImpuesto = new List<TipoImpuestoVewModel> {
+                new TipoImpuestoVewModel{
+                    Id=1,
+                    Nombre="Impuesto"
+                },
+                new TipoImpuestoVewModel{
+                    Id=2,
+                    Nombre="Retencion"
+                }
+            };
+
+        public List<TipoImpuestoVewModel> ListaImpuestos { get { return _tipoImpuesto; } set { } }
 
         //fin de Campos agregados
 

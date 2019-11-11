@@ -176,9 +176,9 @@ C:\Users\diego\Desktop\final1\PostgreSQL\bin\fi\Npgsql.resources.dll
 C:\Users\diego\Desktop\final1\PostgreSQL\bin\fr\Npgsql.resources.dll
 C:\Users\diego\Desktop\final1\PostgreSQL\bin\ja\Npgsql.resources.dll
 C:\Users\diego\Desktop\final1\PostgreSQL\bin\zh-CN\Npgsql.resources.dll
-C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.csprojAssemblyReference.cache
 C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.IdentityResources.resources
 C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.csproj.GenerateResource.cache
 C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.csproj.CopyComplete
 C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.dll
 C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.pdb
+C:\Users\diego\Desktop\final1\PostgreSQL\obj\Debug\PostgreSQL.AspNet.Identity.EntityFramework.csprojAssemblyReference.cache

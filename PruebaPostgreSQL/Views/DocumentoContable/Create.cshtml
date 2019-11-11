@@ -18,6 +18,8 @@
     var valor = 0;
     var valorTrm = 0;
 
+    var defaultValue = new Array();
+
     function CreateInputElement(itemName, itemValue, itemIndex, container, clase) {
         var $input = $("<input/>");
         $input.appendTo(container).attr({ type: "hidden", name: clase + itemIndex + "]." + itemName }).val(itemValue);
@@ -151,7 +153,7 @@
                     }
                 }
                 refreshTreeList();
-                console.log($("#grid").dxDataGrid("instance"))
+                //console.log($("#grid").dxDataGrid("instance"))
                 $("#grid").dxDataGrid("instance").columnOption("command:edit", "width", 75)
                 $("#grid").dxDataGrid("instance").columnOption(0, "width", 75);
                 $("#grid").dxDataGrid("instance").columnOption(1, "width", 75);
@@ -174,23 +176,7 @@
         }
     }
 
-    function calcularValorAlterno(e) {
-        let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
-        let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
-        if (e !== null) {
-            //if (e.Valor == parseFloat(e.ValorAlterno)) {
-            //    return e.Valor;
-            //}
-            if (e.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
-                e.Valor = valorTrm * parseFloat(e.ValorAlterno);
-                return e.Valor;
-            }
-            else {
-                e.Valor = parseFloat(e.ValorAlterno)
-                return e.Valor;
-            }
-        }
-    }
+    
     var event;
     function changeValue(e) {
         event = e;
@@ -265,9 +251,11 @@
                 insertSucursalArray(arraySucursal, array[i]);
                 if (array[i].Esdebito === true) {
                     TotalDebito = TotalDebito + array[i].Valor
+                    //console.log(array[i])
                 }
                 else {
                     TotalCredito = TotalCredito + array[i].Valor
+                    //console.log(array[i].ListaImpuestos)
                 }
             }
 
@@ -421,7 +409,122 @@
         e.data.Idunidadnegocio = $('#idUnidadNegocio').dxSelectBox('instance').option('value')
         e.data.Idccostos = $('#idCentroCostos').dxSelectBox('instance').option('value')
         e.data.Idtercero = $('#idTercero').dxSelectBox('instance').option('value')
-        console.log(e);
+        //console.log(e);
+    }
+
+    function prepareTollbar(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        $.each(toolbarItems, function (_, item) {
+            if (item.name == "saveButton" || item.name == "revertButton") {
+                item.visible = false;
+            }
+        });
+    }
+
+    //ELiminar DOcumento
+    function deleteDocumento(e) {
+        let $popupContainer = $("<div />")
+            .addClass("popup")
+            .appendTo($("#popup"));
+        let popupOptions = {
+            width: 300,
+            height: 250,
+            contentTemplate: function() {
+                return $("<div />").append(
+                    $("<p><span>Desea Eliminar los Documentos Seleccionados</span></p>"),
+                    $("<hr/>"),
+                    $("<a class='btn' onClick=\"$('.popup').remove();\">Cancelar</a>"),
+                    $("<a class='btn btn-danger' onClick=\"$('.popup').remove();eliminar(null)\">Eliminar</a>")
+                );
+            }
+        }
+        let popup = $popupContainer.dxPopup(popupOptions).dxPopup("instance");
+        popup.show();
+    };
+
+    //Eliminar Impuesto
+    function deleteImpuesto(e) {
+        let $popupContainer = $("<div />")
+            .addClass("popup")
+            .appendTo($("#popup"));
+        let popupOptions = {
+            width: 300,
+            height: 250,
+            contentTemplate: function() {
+                return $("<div />").append(
+                    $("<p><span>Desea Eliminar los Impuestos Seleccionados</span></p>"),
+                    $("<hr/>"),
+                    $("<a class='btn' onClick=\"$('.popup').remove();\">Cancelar</a>"),
+                    $("<a class='btn btn-danger' onClick=\"$('.popup').remove();eliminarDetail(null)\">Eliminar</a>")
+                );
+            }
+        }
+        let popup = $popupContainer.dxPopup(popupOptions).dxPopup("instance");
+        popup.show();
+    };
+
+    //chage Value Valor Alterno
+    function calulateValue(e) {
+        //console.log(e)
+        let datagrid = $("#grid").dxDataGrid("instance");
+        //console.log(datagrid);
+        //datagrid.cellValue(row, 6, valorCuota)
+    }
+
+    function startEditing(e) {
+        let dataGrid=$("#grid").dxDataGrid("instance")
+        let rowIndex = e.component.getRowIndexByKey(e.key);
+        let datagridItem = $("#grid").dxDataGrid("instance").getDataSource()._items
+        let currentData = e.data
+        let savedValue = datagridItem[rowIndex]
+        if (savedValue != null) {
+            if (currentData.ValorAlterno != savedValue.ValorAlterno) {
+                let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
+                let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
+                console.log("diferente")
+                if (currentData.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
+                    currentData.Valor = valorTrm * parseFloat(currentData.ValorAlterno)
+                    savedValue.Valor = currentData.Valor
+                    savedValue.ValorAlterno=currentData.ValorAlterno
+                }
+                else {
+                    currentData.Valor = parseFloat(currentData.ValorAlterno)
+                }
+
+            }
+            else {
+                console.log("igual")
+            }
+        }
+        //dataGrid.saveEditData()
+        //dataGrid.refresh();
+    }
+
+    function calcularValorAlterno(e) {
+        let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
+        let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
+        if (e !== null) {
+            //if (e.Valor == parseFloat(e.ValorAlterno)) {
+            //    return e.Valor;
+            //}
+            if (e.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
+                e.Valor = valorTrm * parseFloat(e.ValorAlterno);
+                return e.Valor;
+            }
+            else {
+                e.Valor = parseFloat(e.ValorAlterno)
+                return e.Valor;
+            }
+        }
+    }
+    function getDocumentoById(id) {
+        let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+        for (i = 0; i < array.length; i++) {
+            if (array[i].Id == id) {
+                return array[i];
+            }
+        }
+        return null;
     }
 </script>
 @foreach (var item in Model.Error)
@@ -522,63 +625,63 @@
                         .ValueExpr("Id")
                         .SearchEnabled(true)
                         .ItemTemplate(@<text>
-                                    <div class="custom-item">
-                                        <div><%= Codigo %> <%= Nombre %> </div>
-                                    </div>
+                            <div class="custom-item">
+                                <div><%= Codigo %> <%= Nombre %> </div>
+                            </div>
                         </text>)).IsRequired(true);
 
-                 formItems1.AddSimpleFor(m => m.Idtipodocumento)
-                     .Editor(e => e.SelectBox()
-                     .DataSource(d => d.WebApi()
-                     .Controller("TipoDocumentoWebApi")
-                     .LoadAction("Get").Key("Id"))
-                     .SearchExpr(new[] { "Prefijo", "Nombre" })
-                     .DisplayExpr(new JS("lookup_displayExprtipo"))
-                     .ValueExpr("Id")
-                     .Placeholder("Seleccionar...")
-                     .SearchEnabled(true)
-                     .ItemTemplate(@<text>
-                        <div class="custom-item">
-                            <div><%= Prefijo %> - <%= Nombre %> </div>
-                        </div>
-                    </text>)).IsRequired(true);
+          formItems1.AddSimpleFor(m => m.Idtipodocumento)
+              .Editor(e => e.SelectBox()
+              .DataSource(d => d.WebApi()
+              .Controller("TipoDocumentoWebApi")
+              .LoadAction("Get").Key("Id"))
+              .SearchExpr(new[] { "Prefijo", "Nombre" })
+              .DisplayExpr(new JS("lookup_displayExprtipo"))
+              .ValueExpr("Id")
+              .Placeholder("Seleccionar...")
+              .SearchEnabled(true)
+              .ItemTemplate(@<text>
+                                <div class="custom-item">
+                                    <div><%= Prefijo %> - <%= Nombre %> </div>
+                                </div>
+            </text>)).IsRequired(true);
 
-         formItems1.AddSimpleFor(x => x.Nrodocumento);
+formItems1.AddSimpleFor(x => x.Nrodocumento);
 
-         formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
-             e.SelectBox()
-             .DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
-             .ID("idTercero")
-             .SearchExpr(new[] { "Identificacion", "Nombreunido" })
-             .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
-             .DisplayExpr(new JS("lookup_displayExpr1"))
-             .ValueExpr("Id")
-             .Placeholder("Seleccionar...")
-             .SearchEnabled(true)
-             .ItemTemplate(
+formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
+e.SelectBox()
+.DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
+.ID("idTercero")
+.SearchExpr(new[] { "Identificacion", "Nombreunido" })
+.DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+.DisplayExpr(new JS("lookup_displayExpr1"))
+.ValueExpr("Id")
+.Placeholder("Seleccionar...")
+.SearchEnabled(true)
+.ItemTemplate(
             @<text>
                 <div class="custom-item">
                     <div><%= Identificacion %> - <%= Nombreunido %> </div>
                 </div>
             </text>)).IsRequired(true);
 
- formItems1.AddSimpleFor(m => m.Estado)
-     .Editor(e =>
-         e.SelectBox()
-         .DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
-         .SearchExpr("Nombre")
-         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
-         .DisplayExpr("Nombre")
-         .Disabled(false)
-         .ValueExpr("Id")
-         .Placeholder("Seleccionar...")
-         .SearchEnabled(true)
-         .ItemTemplate(@<text>
-            <div class="custom-item">
-                <div><%= Identificacion %> - <%= Nombreunido %> </div>
-            </div>
-        </text>))
- .IsRequired(true);
+formItems1.AddSimpleFor(m => m.Estado)
+.Editor(e =>
+  e.SelectBox()
+  .DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
+  .SearchExpr("Nombre")
+  .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
+  .DisplayExpr("Nombre")
+  .Disabled(false)
+  .ValueExpr("Id")
+  .Placeholder("Seleccionar...")
+  .SearchEnabled(true)
+  .ItemTemplate(@<text>
+                        <div class="custom-item">
+                            <div><%= Identificacion %> - <%= Nombreunido %> </div>
+                        </div>
+</text>))
+.IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.Fechadocumento)
 .Editor(e => e.DateBox());
@@ -611,9 +714,9 @@ formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
 .Placeholder("Seleccionar...")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Codigo %> - <%= Nombre %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Codigo %> - <%= Nombre %> </div>
+                </div>
 </text>))
 .IsRequired(true);
 
@@ -625,9 +728,9 @@ formItems1.AddSimpleFor(m => m.IdMoneda)
 .ValueExpr("Id")
 .SearchEnabled(true)
 .ItemTemplate(@<text>
-    <div class="custom-item">
-        <div><%= Sigla %> - <%= Nombre %> </div>
-    </div>
+                <div class="custom-item">
+                    <div><%= Sigla %> - <%= Nombre %> </div>
+                </div>
 </text>)
 .ID("moneySelected"))
 .IsRequired(true);
@@ -670,126 +773,131 @@ formItems1.AddSimpleFor(m => m.IsCuadrado)
 
 formItems.AddSimple()
 .Template(@<text>
-    @(Html.DevExtreme()
-    .DataGrid<AuxiliarContableViewModel>()
-    .ID("grid")
-    .ShowBorders(true)
-    .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
-    .DataSource(@Model.ListaAuxiliarContable, new string[] { "Id" })
-    .GroupPanel(gp => gp.EmptyPanelText("hola"))
-    .Columns(columns =>
-    {
-        columns.Add()
-        .DataField("Idauxiliar")
-        .Caption("Auxiliar")
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("aux_template")).Width(100)
-        .Fixed(true);
+                @(Html.DevExtreme()
+                .DataGrid<AuxiliarContableViewModel>()
+                .ID("grid")
+                .ShowBorders(true)
+                .Editing(s => s.Mode(GridEditMode.Batch).AllowUpdating(true).AllowAdding(true).AllowDeleting(true))
+                .DataSource(@Model.ListaAuxiliarContable, new string[] { "Id" })
+                .GroupPanel(gp => gp.EmptyPanelText("hola"))
+                .Columns(columns =>
+                {
+                    columns.Add()
+                    .DataField("Idauxiliar")
+                    .Caption("Auxiliar")
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("aux_template")).Width(100)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.Idtercero)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("ter_template")).Width(130)
-        .Fixed(true);
+                    columns.AddFor(m => m.Idtercero)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("ter_template")).Width(130)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.Idmultilibro)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("mul_template")).Width(120)
-        .Fixed(true);
+                    columns.AddFor(m => m.Idmultilibro)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("mul_template")).Width(100)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("suc_template")).Width(120)
-        .Fixed(true);
+                    columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("suc_template")).Width(100)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.ValorAlterno)
-        .EditCellTemplate(new TemplateName("val_alterno_template"))
-        .Width(130)
-        .Fixed(true);
+                    columns.AddFor(m => m.ValorAlterno)
+                    .EditCellTemplate(new TemplateName("val_alterno_template"))
+                    .Width(130)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.Valor)
-        .EditCellTemplate(new TemplateName("val_template")).CalculateCellValue(@"calcularValorAlterno")
-        .Width(130)
-        .Fixed(true);
+                    columns.AddFor(m => m.Valor)
+                    .EditCellTemplate(new TemplateName("val_template"))
+                    //.CalculateCellValue(@"calcularValorAlterno")
+                    .Width(130)
+                    .Fixed(true);
 
-        columns.AddFor(m => m.Esdebito);
+                    columns.AddFor(m => m.Esdebito);
 
-        columns.AddFor(m => m.Notas);
+                    columns.AddFor(m => m.Notas);
 
-        columns.AddFor(m => m.Idunidadnegocio)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("un_template"));
+                    columns.AddFor(m => m.Idunidadnegocio)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("un_template"));
 
-        columns.AddFor(m => m.Idccostos)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("cc_template"));
+                    columns.AddFor(m => m.Idccostos)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cc_template"));
 
-        columns.AddFor(m => m.Idfe)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("fe_template"));
+                    columns.AddFor(m => m.Idfe)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("fe_template"));
 
-        columns.AddFor(m => m.Idproyecto)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("pro_template"));
+                    columns.AddFor(m => m.Idproyecto)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("pro_template"));
 
-        columns.AddFor(m => m.Idcontrolfiscal)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("cfi_template"));
+                    columns.AddFor(m => m.Idcontrolfiscal)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("cfi_template"));
 
-        columns.AddFor(m => m.Doccruce);
+                    columns.AddFor(m => m.Doccruce);
 
-        columns.AddFor(m => m.Nrocruce);
+                    columns.AddFor(m => m.Nrocruce);
 
-        columns.AddFor(m => m.Fechavencimiento);
+                    columns.AddFor(m => m.Fechavencimiento);
 
-        columns.AddFor(m => m.Periodovencimiento);
+                    columns.AddFor(m => m.Periodovencimiento);
 
-        columns.AddFor(m => m.Refbanco);
+                    columns.AddFor(m => m.Refbanco);
 
-        columns.AddFor(m => m.IdTerceroDos)
-        .ShowEditorAlways(true)
-        .EditCellTemplate(new TemplateName("ter2_template"));
-    })
-    .Paging(paging => paging.Enabled(false))
-    .FilterRow(f => f.Visible(true))
-    .HeaderFilter(f => f.Visible(true))
-    .GroupPanel(p => p.Visible(true))
-    .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
-    .RemoteOperations(true)
-    .AllowColumnResizing(true)
-    .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
-    .ColumnWidth(200)
-    .FocusedRowEnabled(true)
-    .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
-    .Selection(s => s.Mode(SelectionMode.Multiple))
-    .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
-    .OnRowInserted("onRowInserted")
-    .OnRowUpdated("refreshTree")
-    .OnContentReady("refreshTree")
-    .OnInitNewRow("initNewRow")
-    )
-    <br />
-    <div>
-        @(Html.DevExtreme().Button()
-            .Text("Eliminar")
-            .Type(ButtonType.Danger)
-            .StylingMode(ButtonStylingMode.Contained)
-            .Width(120)
-            .OnClick("eliminar")
-        )
-    </div>
-    <br />
-    <div class="col-md-6">
-        <table class="table">
-            <thead>
-            <th></th>
-            <th>Debito</th>
-            <th>Credito</th>
-            <th>Diferencia</th>
-            </thead>
-            <tbody id="tableBody">
-            </tbody>
-        </table>
-    </div>
+                    columns.AddFor(m => m.IdTerceroDos)
+                    .ShowEditorAlways(true)
+                    .EditCellTemplate(new TemplateName("ter2_template"));
+                })
+                .Paging(paging => paging.Enabled(false))
+                .FilterRow(f => f.Visible(true))
+                .HeaderFilter(f => f.Visible(true))
+                .GroupPanel(p => p.Visible(true))
+                .Grouping(g => g.AutoExpandAll(false).Texts(x => x.GroupContinuedMessage("hola")))
+                .RemoteOperations(true)
+                .AllowColumnResizing(true)
+                .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+                .ColumnWidth(200)
+                .FocusedRowEnabled(true)
+                .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
+                .Selection(s => s.Mode(SelectionMode.Multiple))
+                .MasterDetail(m => m.Enabled(true).Template(new TemplateName("MaterdelailAuxContableDetail")))
+                .OnRowInserted("onRowInserted")
+                .OnRowUpdated("refreshTree")
+                .OnContentReady("refreshTree")
+                .OnInitNewRow("initNewRow")
+                .OnToolbarPreparing("prepareTollbar")
+                .OnEditingStart("startEditing")
+                .AllowColumnReordering(true)
+                )
+                <br />
+                <div>
+                    @(Html.DevExtreme().Button()
+                        .Text("Eliminar")
+                        .Type(ButtonType.Danger)
+                        .StylingMode(ButtonStylingMode.Contained)
+                        .Width(120)
+                        .OnClick("deleteDocumento")
+                    )
+                </div>
+                <br />
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                        <th></th>
+                        <th>Debito</th>
+                        <th>Credito</th>
+                        <th>Diferencia</th>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
 
+                <div id="popup"></div>
 </text>);
 }))
 }
@@ -857,6 +965,7 @@ formItems.AddSimple()
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr(new JS("lookup_displayExpr1"))
         .ValueExpr("Id")
+        .OnKeyPress("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -876,6 +985,7 @@ formItems.AddSimple()
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr(new JS("lookup_displayExpr1"))
         .ValueExpr("Id")
+        .OnKeyPress("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -890,6 +1000,7 @@ formItems.AddSimple()
     @(Html.DevExtreme()
         .SelectBox()
         .Value(new JS("data.Idmultilibro"))
+        .OnKeyPress("keyPress")
         .SearchExpr(new string[] { "Nombre" })
         .OnValueChanged(@"function(args){setValue(args.value);}")
         .DataSource(ds => ds.WebApi().Controller("MultilibroWebApi").LoadAction("Get").Key("Id"))
@@ -1039,9 +1150,16 @@ formItems.AddSimple()
                 {
                     //IMPUESTO / RETENCION
                     //columns.AddFor(m => m.EsRetencion);
-                    columns.AddFor(m => m.EsRetencion).EditCellTemplate(new TemplateName("tipo_impuesto"));
+                    columns.AddFor(m => m.EsRetencion)
+                    //.EditCellTemplate(new TemplateName("tipo_impuesto"))
+                    .Lookup(lk=>lk.DataSource(@Model.ListaImpuestos).DisplayExpr("Nombre").ValueExpr("Id"))
+                    .ShowEditorAlways(true);
+                    //.DataField("Tipo Tributo");
                     //CODIGO)
-                    columns.AddFor(m => m.Codigo).EditCellTemplate(new TemplateName("codigco_template"));
+                    columns.AddFor(m => m.Codigo)
+                    //.EditCellTemplate(new TemplateName("codigco_template"));
+                    .Lookup(lk => lk.DataSource(ds => ds.WebApi().Controller("CodigoImpuestoWebApi").LoadAction("Get").Key("Id")).ValueExpr("Id").DisplayExpr("Nombre"))
+                    .ShowEditorAlways(true);
                     columns.AddFor(m => m.Porcentaje);
                     columns.AddFor(m => m.BaseImpuesto);
                     columns.AddFor(m => m.Valor)
@@ -1099,6 +1217,7 @@ formItems.AddSimple()
                 .FocusedRowEnabled(true)
                 .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
                 .Selection(s => s.Mode(SelectionMode.Multiple))
+                .OnToolbarPreparing("prepareTollbar")
     )
 
     <div>
@@ -1107,7 +1226,7 @@ formItems.AddSimple()
             .Type(ButtonType.Danger)
             .StylingMode(ButtonStylingMode.Contained)
             .Width(120)
-            .OnClick("eliminarDetail")
+            .OnClick("deleteImpuesto")
         )
     </div>
 }
@@ -1137,9 +1256,11 @@ formItems.AddSimple()
     @(Html.DevExtreme()
         .SelectBox()
         .Value(new JS("data.Esretencion"))
-        .SearchExpr(new string[] { "Id", "Nombre" })
+        //.SearchExpr(new string[] { "Id", "Nombre" })
+        .SearchExpr("Nombre")
         .OnValueChanged(@"function(args){setValue(args.value);}")
-        .DataSource(ds => ds.WebApi().Controller("TipoImpuestoWebApi").LoadAction("Get").Key("Id"))
+        //.DataSource(ds => ds.WebApi().Controller("TipoImpuestoWebApi").LoadAction("Get").Key("Id"))
+        .DataSource(@Model.ListaImpuestos, new string[] { "Id" })
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
