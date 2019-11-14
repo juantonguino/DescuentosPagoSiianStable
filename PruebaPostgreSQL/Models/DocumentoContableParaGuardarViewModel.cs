@@ -57,6 +57,8 @@ namespace Entities.Contabilidad.ViewModels
         [DisplayName("Documentos Que Referencian")]
         public int? DocumentosQueReferencian { get; set; }
 
+        public string ListStringAuxFormat { get; set; }
+
         List<TipoImpuestoVewModel> _tipoImpuesto = new List<TipoImpuestoVewModel> {
                 new TipoImpuestoVewModel{
                     Id=1,

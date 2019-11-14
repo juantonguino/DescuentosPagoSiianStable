@@ -25,6 +25,15 @@
         $input.appendTo(container).attr({ type: "hidden", name: clase + itemIndex + "]." + itemName }).val(itemValue);
     }
 
+    function saveAuto() {
+        while (true) {
+            setTimeout(function () {
+                $("#grid").dxDataGrid("instance").saveEditData()
+            }, 3000)
+            console.log("ejecutado")
+        }
+    }
+
     function clickHandler(e) {
         if (e.validationGroup.validate().isValid) {
             $("#grid").dxDataGrid("instance").saveEditData();
@@ -44,7 +53,7 @@
     function toolbar(e) {
         var toolbarItems = e.toolbarOptions.items;
         $.each(toolbarItems, function (_, item) {
-            if (item.name == "saveButton") //|| item.name == "revertButton")
+            if (item.name == "saveButton")
             {
                 item.visible = false;
             }
@@ -95,7 +104,9 @@
 
     function guardar(e) {
         //$("#Operacion").val($(this).data("pdsa-action"));
+        let list = JSON.stringify($("#grid").dxDataGrid("instance").getDataSource()._items)
         $("#escuadrado").dxTextBox("instance")._renderDisplayText(esDocumentoCuadrado())
+        $("#listStringAuxFormat").dxTextBox("instance")._renderDisplayText(list)
         $("#grid").dxDataGrid("instance").saveEditData();
         $("#grid").dxDataGrid("instance").getDataSource().load().done(function (items) {
             for (var i = 0; i < items.length; i++) {
@@ -135,10 +146,6 @@
     $(document).ready(function () {
         $(".showMultiLibro").hide()
         $(".showSucursal").hide()
-
-        //aqui se rededine el tamaño de las columnas
-        //$("#grid").dxDataGrid("instance").columnOption(2, "width", 50);
-
         //aqui se ocuelta el campo escuadrado
         $("[data-pdsa-action]").on("click", function (e) {
             e.preventDefault();
@@ -153,16 +160,8 @@
                     }
                 }
                 refreshTreeList();
-                //console.log($("#grid").dxDataGrid("instance"))
-                $("#grid").dxDataGrid("instance").columnOption("command:edit", "width", 75)
-                $("#grid").dxDataGrid("instance").columnOption(0, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(1, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(2, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(3, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(4, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(5, "width", 75);
-                $("#grid").dxDataGrid("instance").columnOption(6, "width", 75);
                 $("#grid").dxDataGrid("instance").refresh()
+                saveAuto()
                 $("#editContable").submit();
 
             });
@@ -180,13 +179,6 @@
     var event;
     function changeValue(e) {
         event = e;
-        //setValue(args.value);
-        //e.set(e.value);
-        //$("$moneySelected").dxSelectBox("instance");
-        //let moneySelected=$("#moneySelected").dxSelectBox("instance");
-        //let valueTrm =$("#trmSelected").dxTextBox("instance");
-
-        //let valMoney=moneySelected.option('value');
         if (valMoney !== DEFAULT_MONEY) {
             valueTrm.option('value')
         }
@@ -251,11 +243,11 @@
                 insertSucursalArray(arraySucursal, array[i]);
                 if (array[i].Esdebito === true) {
                     TotalDebito = TotalDebito + array[i].Valor
-                    //console.log(array[i])
+                    TotalDebito = TotalDebito + calcularTotalImpuesto(array[i].ListaImpuestos)
                 }
                 else {
                     TotalCredito = TotalCredito + array[i].Valor
-                    //console.log(array[i].ListaImpuestos)
+                    TotalDebito = TotalDebito + calcularTotalImpuesto(array[i].ListaImpuestos)
                 }
             }
 
@@ -306,6 +298,22 @@
 
     }
 
+    function calcularTotalImpuesto(array) {
+        let total=0;
+        for (let i = 0; i < array.length; i++) {
+            let temoVal = (array[i].Valor == null)?0:parseFloat( array[i].Valor);
+            if (array[i].EsRetencion == 1) {
+                //total = total + parseFloat(array[i].Valor);
+                total = total + temoVal
+            }
+            else {
+                //total = total - parseFloat( array[i].Valor);
+                total = total - temoVal
+            }
+        }
+        return total;
+    }
+
     function findByIdArray(arrayData, id) {
         for (i = 0; i < arrayData.length; i++) {
             if (arrayData[i].Id === id) {
@@ -324,9 +332,11 @@
             if (obj.Idmultilibro === array[i].Idmultilibro) {
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
+                    array[i].debito += calcularTotalImpuesto(obj.ListaImpuestos)
                 }
                 else {
                     array[i].credito += obj.Valor;
+                    array[i].credito += calcularTotalImpuesto(obj.ListaImpuestos)
                 }
             }
         }
@@ -336,10 +346,12 @@
             temp.Idmultilibro = obj.Idmultilibro
             if (obj.Esdebito === true) {
                 temp.debito = obj.Valor;
+                temp.debito += calcularTotalImpuesto(obj.ListaImpuestos)
                 temp.credito = 0;
             }
             else {
                 temp.credito = obj.Valor;
+                temp.credito += calcularTotalImpuesto(obj.ListaImpuestos)
                 temp.debito = 0;
             }
             array.push(temp)
@@ -352,9 +364,11 @@
             if (obj.Idsucursal === array[i].Idsucursal) {
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
+                    array[i].debito += calcularTotalImpuesto(obj.ListaImpuestos)
                 }
                 else {
                     array[i].credito += obj.Valor;
+                    array[i].credito += calcularTotalImpuesto(obj.ListaImpuestos)
                 }
             }
         }
@@ -364,10 +378,12 @@
             temp.Idsucursal = obj.Idsucursal
             if (obj.Esdebito === true) {
                 temp.debito = obj.Valor;
+                temp.debito += calcularTotalImpuesto(obj.ListaImpuestos)
                 temp.credito = 0;
             }
             else {
                 temp.credito = obj.Valor;
+                temp.credito += calcularTotalImpuesto(obj.ListaImpuestos)
                 temp.debito = 0;
             }
             array.push(temp)
@@ -405,11 +421,21 @@
 
     //fucion al inicializar un nuevo registro
     function initNewRow(e) {
+        console.log(e)
         e.data.Idsucursal = $('#idSucursal').dxSelectBox('instance').option('value')
         e.data.Idunidadnegocio = $('#idUnidadNegocio').dxSelectBox('instance').option('value')
         e.data.Idccostos = $('#idCentroCostos').dxSelectBox('instance').option('value')
         e.data.Idtercero = $('#idTercero').dxSelectBox('instance').option('value')
-        //console.log(e);
+        e.data.Valor = 0;
+        e.data.ListaImpuestos = [];
+        //let tempDataSource = $("#grid").dxDataGrid("instance").getDataSource()._items
+        //tempDataSource.push(e.data);
+        //$("#grid").dxDataGrid("instance").getDataSource()._items.push(e.data)
+        //$("#grid").dxDataGrid("instance").option("dataSource", tempDataSource);
+        //$("#grid").dxDataGrid("instance").getDataSource()._store._key = "Id";
+        //$("#grid").dxDataGrid("instance").saveEditData();
+        //$("#grid").dxDataGrid("instance").refresh()
+        e.component.saveEditData()
     }
 
     function prepareTollbar(e) {
@@ -465,9 +491,7 @@
 
     //chage Value Valor Alterno
     function calulateValue(e) {
-        //console.log(e)
         let datagrid = $("#grid").dxDataGrid("instance");
-        //console.log(datagrid);
         //datagrid.cellValue(row, 6, valorCuota)
     }
 
@@ -481,7 +505,6 @@
             if (currentData.ValorAlterno != savedValue.ValorAlterno) {
                 let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
                 let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
-                console.log("diferente")
                 if (currentData.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
                     currentData.Valor = valorTrm * parseFloat(currentData.ValorAlterno)
                     savedValue.Valor = currentData.Valor
@@ -493,20 +516,17 @@
 
             }
             else {
-                console.log("igual")
             }
         }
-        //dataGrid.saveEditData()
-        //dataGrid.refresh();
+        refreshTree(null);
     }
 
     function calcularValorAlterno(e) {
+        console.log(e)
+        console.log($("#grid").dxDataGrid("instance").getRowIndexByKey(e.key))
         let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
         let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
         if (e !== null) {
-            //if (e.Valor == parseFloat(e.ValorAlterno)) {
-            //    return e.Valor;
-            //}
             if (e.ValorAlterno == "0" || moneySelected != DEFAULT_MONEY) {
                 e.Valor = valorTrm * parseFloat(e.ValorAlterno);
                 return e.Valor;
@@ -768,6 +788,13 @@ formItems1.AddSimpleFor(m => m.IsCuadrado)
 .Visible(true)
 .OnInitialized(@"ocultar"))
 .CssClass("display");
+
+formItems1.AddSimpleFor(m => m.ListStringAuxFormat)
+.Editor(e => e.TextBox()
+.ID("listStringAuxFormat")
+.Visible(true)
+.OnInitialized(@"ocultar"))
+.CssClass("display");
 }
 );
 
@@ -810,7 +837,7 @@ formItems.AddSimple()
 
                     columns.AddFor(m => m.Valor)
                     .EditCellTemplate(new TemplateName("val_template"))
-                    //.CalculateCellValue(@"calcularValorAlterno")
+                    .CalculateCellValue(@"calcularValorAlterno")
                     .Width(130)
                     .Fixed(true);
 
@@ -870,8 +897,10 @@ formItems.AddSimple()
                 .OnContentReady("refreshTree")
                 .OnInitNewRow("initNewRow")
                 .OnToolbarPreparing("prepareTollbar")
-                .OnEditingStart("startEditing")
+                //.OnEditingStart("startEditing")
                 .AllowColumnReordering(true)
+                //.OnRowInserted("insertedRow")
+                //.OnRowInserting("insertedRow")
                 )
                 <br />
                 <div>
@@ -966,6 +995,7 @@ formItems.AddSimple()
         .DisplayExpr(new JS("lookup_displayExpr1"))
         .ValueExpr("Id")
         .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -986,6 +1016,7 @@ formItems.AddSimple()
         .DisplayExpr(new JS("lookup_displayExpr1"))
         .ValueExpr("Id")
         .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -1001,6 +1032,7 @@ formItems.AddSimple()
         .SelectBox()
         .Value(new JS("data.Idmultilibro"))
         .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchExpr(new string[] { "Nombre" })
         .OnValueChanged(@"function(args){setValue(args.value);}")
         .DataSource(ds => ds.WebApi().Controller("MultilibroWebApi").LoadAction("Get").Key("Id"))
@@ -1028,6 +1060,8 @@ formItems.AddSimple()
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
         .SearchEnabled(true)
+        .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .ItemTemplate(@<text>
                     <div class="custom-item">
                         <div> <%= Nombre %> </div>
@@ -1047,6 +1081,8 @@ formItems.AddSimple()
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
+        .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -1067,6 +1103,8 @@ formItems.AddSimple()
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
+        .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -1086,6 +1124,8 @@ formItems.AddSimple()
     .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
     .DisplayExpr("Nombre")
     .ValueExpr("Id")
+    .OnKeyPress("keyPress")
+    .OnKeyDown("keyPress")
     .SearchEnabled(true)
     .ItemTemplate(@<text>
                 <div class="custom-item">
@@ -1106,6 +1146,8 @@ formItems.AddSimple()
         .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
+        .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .SearchEnabled(true)
         .ItemTemplate(@<text>
                     <div class="custom-item">
@@ -1126,6 +1168,8 @@ formItems.AddSimple()
         .DisplayExpr("Nombre")
         .ValueExpr("Id")
         .SearchEnabled(true)
+        .OnKeyPress("keyPress")
+        .OnKeyDown("keyPress")
         .ItemTemplate(@<text>
                     <div class="custom-item">
                         <div> <%= Nombre %> </div>

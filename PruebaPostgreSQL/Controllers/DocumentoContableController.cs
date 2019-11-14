@@ -1,7 +1,6 @@
 ﻿
 using Entities.Contabilidad.ViewModels;
-
-
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +18,9 @@ namespace PruebaPostgreSQL.Controllers.Contabilidad
         [HttpPost]
         public ActionResult Create(DocumentoContableParaGuardarViewModel view)
         {
+            //List<DescuentoPorConvenio> resutlt = JsonConvert.DeserializeObject<List<DescuentoPorConvenio>>(tempDescuentos);
+            List<AuxiliarContableViewModel> result = JsonConvert.DeserializeObject<List<AuxiliarContableViewModel>>(view.ListStringAuxFormat);
+            view.ListaAuxiliarContable = result;
             return View(view);
         }
         public ActionResult Create()
