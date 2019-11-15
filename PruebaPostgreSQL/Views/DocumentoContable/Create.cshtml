@@ -30,7 +30,6 @@
             setTimeout(function () {
                 $("#grid").dxDataGrid("instance").saveEditData()
             }, 3000)
-            console.log("ejecutado")
         }
     }
 
@@ -161,7 +160,7 @@
                 }
                 refreshTreeList();
                 $("#grid").dxDataGrid("instance").refresh()
-                saveAuto()
+                //saveAuto()
                 $("#editContable").submit();
 
             });
@@ -242,11 +241,11 @@
                 insertMultilibroArray(arrayMultilibro, array[i]);
                 insertSucursalArray(arraySucursal, array[i]);
                 if (array[i].Esdebito === true) {
-                    TotalDebito = TotalDebito + array[i].Valor
+                    TotalDebito = TotalDebito + parseFloat(array[i].Valor)
                     TotalDebito = TotalDebito + calcularTotalImpuesto(array[i].ListaImpuestos)
                 }
                 else {
-                    TotalCredito = TotalCredito + array[i].Valor
+                    TotalCredito = TotalCredito + parseFloat(array[i].Valor)
                     TotalDebito = TotalDebito + calcularTotalImpuesto(array[i].ListaImpuestos)
                 }
             }
@@ -262,8 +261,8 @@
                 </tr >`;
             for (let i = 0; i < arrayMultilibro.length; i++) {
                 let multilibro = findByIdArray(data[0], arrayMultilibro[i].Idmultilibro).Nombre;//arrayMultilibro[i].Idmultilibro;
-                let credito = arrayMultilibro[i].credito;
-                let debito = arrayMultilibro[i].debito;
+                let credito = parseFloat(arrayMultilibro[i].credito);
+                let debito = parseFloat(arrayMultilibro[i].debito);
                 let str = `<tr class="showMultiLibro">
                     <td>`+ multilibro + `</td>
                     <td>`+ debito + `</td>
@@ -421,20 +420,12 @@
 
     //fucion al inicializar un nuevo registro
     function initNewRow(e) {
-        console.log(e)
         e.data.Idsucursal = $('#idSucursal').dxSelectBox('instance').option('value')
         e.data.Idunidadnegocio = $('#idUnidadNegocio').dxSelectBox('instance').option('value')
         e.data.Idccostos = $('#idCentroCostos').dxSelectBox('instance').option('value')
         e.data.Idtercero = $('#idTercero').dxSelectBox('instance').option('value')
         e.data.Valor = 0;
         e.data.ListaImpuestos = [];
-        //let tempDataSource = $("#grid").dxDataGrid("instance").getDataSource()._items
-        //tempDataSource.push(e.data);
-        //$("#grid").dxDataGrid("instance").getDataSource()._items.push(e.data)
-        //$("#grid").dxDataGrid("instance").option("dataSource", tempDataSource);
-        //$("#grid").dxDataGrid("instance").getDataSource()._store._key = "Id";
-        //$("#grid").dxDataGrid("instance").saveEditData();
-        //$("#grid").dxDataGrid("instance").refresh()
         e.component.saveEditData()
     }
 
@@ -518,12 +509,17 @@
             else {
             }
         }
+        //e.component.refresh();
         refreshTree(null);
     }
 
     function calcularValorAlterno(e) {
+        //console.log(e)
+        //console.log(e.key)
+        //console.log($("#grid").dxDataGrid("instance").getRowIndexByKey(e.key))
+        let temp = getRowById($("#grid").dxDataGrid("instance").getDataSource()._items, e.Id)
         console.log(e)
-        console.log($("#grid").dxDataGrid("instance").getRowIndexByKey(e.key))
+        console.log(temp)
         let moneySelected = $('#moneySelected').dxSelectBox('instance').option('value');
         let valorTrm = $('#trmSelected').dxTextBox('instance').option('value');
         if (e !== null) {
@@ -537,6 +533,16 @@
             }
         }
     }
+
+    function getRowById(array, id) {
+        for (let i = 0; i < array.length;i++) {
+            if (array[i].Id == id) {
+                return array[i]
+            }
+        }
+        return null
+    }
+
     function getDocumentoById(id) {
         let array = $("#grid").dxDataGrid("instance").getDataSource()._items
         for (i = 0; i < array.length; i++) {
@@ -837,7 +843,7 @@ formItems.AddSimple()
 
                     columns.AddFor(m => m.Valor)
                     .EditCellTemplate(new TemplateName("val_template"))
-                    .CalculateCellValue(@"calcularValorAlterno")
+                    //.CalculateCellValue(@"calcularValorAlterno")
                     .Width(130)
                     .Fixed(true);
 
@@ -896,9 +902,9 @@ formItems.AddSimple()
                 .OnRowUpdated("refreshTree")
                 .OnContentReady("refreshTree")
                 .OnInitNewRow("initNewRow")
-                .OnToolbarPreparing("prepareTollbar")
-                //.OnEditingStart("startEditing")
-                .AllowColumnReordering(true)
+                //.OnToolbarPreparing("prepareTollbar")
+                .OnEditingStart("startEditing")
+                .AllowColumnReordering(false)
                 //.OnRowInserted("insertedRow")
                 //.OnRowInserting("insertedRow")
                 )
@@ -1261,7 +1267,7 @@ formItems.AddSimple()
                 .FocusedRowEnabled(true)
                 .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
                 .Selection(s => s.Mode(SelectionMode.Multiple))
-                .OnToolbarPreparing("prepareTollbar")
+                //.OnToolbarPreparing("prepareTollbar")
     )
 
     <div>
