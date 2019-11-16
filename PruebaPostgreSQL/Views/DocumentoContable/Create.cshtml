@@ -1267,6 +1267,7 @@ formItems.AddSimple()
                 .FocusedRowEnabled(true)
                 .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
                 .Selection(s => s.Mode(SelectionMode.Multiple))
+                .OnRowUpdated("refreshTree")
                 //.OnToolbarPreparing("prepareTollbar")
     )
 
