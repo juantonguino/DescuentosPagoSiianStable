@@ -2,10 +2,15 @@
 @model DocumentoContableParaGuardarViewModel
 @{
     ViewBag.Title = "Documento Contable";
+    int whidhForm = 123;
 }
 <style>
     .display {
         display: none !important;
+    }
+
+    .dx-texteditor-input {  
+        text-align: left;
     }
 </style>
 <h2>Documento Contable</h2>
@@ -631,18 +636,18 @@
         </div>
     </div>
     @(Html.DevExtreme()
-        .Form<DocumentoContableParaGuardarViewModel>()
-        .ValidationGroup("documentoContableViewModel")
-        .FormData(Model)
-        .Items(formItems =>
-                {
-            formItems.AddGroup()
-                .Caption("Datos de Documento")
-                .ColCount(3).Items(formItems1 =>
-                        {
-                    formItems1.AddSimpleFor(m => m.Idsucursal)
+    .Form<DocumentoContableParaGuardarViewModel>()
+    .ValidationGroup("documentoContableViewModel")
+    .FormData(Model)
+    .Items(formItems =>
+    {
+    formItems.AddGroup()
+            .Caption("Datos de Documento")
+            .ColCount(3).Items(formItems1 =>
+            {
+                formItems1.AddSimpleFor(m => m.Idsucursal)
                         .Editor(e =>
-                            e.SelectBox()
+                            e.SelectBox().Width(whidhForm)
                             .DataSource(ds => ds.WebApi().Controller("SucursalWebApi").LoadAction("Get").Key("Id"))
                         .ID("idSucursal")
                         .SearchExpr(new[] { "Codigo", "Nombre" })
@@ -657,7 +662,7 @@
                         </text>)).IsRequired(true);
 
           formItems1.AddSimpleFor(m => m.Idtipodocumento)
-              .Editor(e => e.SelectBox()
+              .Editor(e => e.SelectBox().Width(whidhForm)
               .DataSource(d => d.WebApi()
               .Controller("TipoDocumentoWebApi")
               .LoadAction("Get").Key("Id"))
@@ -672,10 +677,10 @@
                                 </div>
             </text>)).IsRequired(true);
 
-formItems1.AddSimpleFor(x => x.Nrodocumento);
+formItems1.AddSimpleFor(x => x.Nrodocumento).Editor(e=>e.TextBox().Width(whidhForm));
 
 formItems1.AddSimpleFor(m => m.IdTercero).Editor(e =>
-e.SelectBox()
+e.SelectBox().Width(whidhForm)
 .DataSource(d => d.WebApi().Controller("TerceroMaestroWebApi").LoadAction("Get").Key("Id"))
 .ID("idTercero")
 .SearchExpr(new[] { "Identificacion", "Nombreunido" })
@@ -693,7 +698,7 @@ e.SelectBox()
 
 formItems1.AddSimpleFor(m => m.Estado)
 .Editor(e =>
-  e.SelectBox()
+  e.SelectBox().Width(whidhForm)
   .DataSource(d => d.WebApi().Controller("EstadoContableWebApi").LoadAction("Get").Key("Id"))
   .SearchExpr("Nombre")
   .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
@@ -710,11 +715,11 @@ formItems1.AddSimpleFor(m => m.Estado)
 .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.Fechadocumento)
-.Editor(e => e.DateBox());
+.Editor(e => e.DateBox().Width(whidhForm));
 
-formItems1.AddSimpleFor(m => m.Fechacontabilizacion).Editor(e => e.DateBox());
+formItems1.AddSimpleFor(m => m.Fechacontabilizacion).Editor(e => e.DateBox().Width(whidhForm));
 
-formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox()
+formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox().Width(whidhForm)
 .DataSource(d => d.WebApi().Controller("AuxiliaresCentroCostosWebApi").Key("Id"))
 .SearchExpr(new[] { "Codigo", "Nombre" })
 .ID("idCentroCostos")
@@ -731,7 +736,7 @@ formItems1.AddSimpleFor(m => m.IdCentroCosto).Editor(e => e.SelectBox()
 .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
-.Editor(e => e.SelectBox().DataSource(d => d.WebApi().Controller("UnidadNegocioWebApi").Key("Id"))
+.Editor(e => e.SelectBox().Width(whidhForm).DataSource(d => d.WebApi().Controller("UnidadNegocioWebApi").Key("Id"))
 .ID("idUnidadNegocio")
 .SearchExpr(new[] { "Codigo", "Nombre" })
 .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
@@ -747,7 +752,7 @@ formItems1.AddSimpleFor(m => m.IdUnidadNegocio)
 .IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.IdMoneda)
-.Editor(e => e.SelectBox().DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
+.Editor(e => e.SelectBox().Width(whidhForm).DataSource(d => d.WebApi().Controller("MonedaWebApi").Key("Id"))
 .SearchExpr(new[] { "Sigla", "Nombre" })
 .DataSourceOptions(opt => opt.Paginate(true).PageSize(10))
 .DisplayExpr(new JS("lookup_displayExprmon"))
@@ -764,16 +769,17 @@ formItems1.AddSimpleFor(m => m.IdMoneda)
 formItems1.AddSimpleFor(m => m.Trm)
 .Editor(e => e
 .TextBox()
+.Width(whidhForm)
 .ID("trmSelected"))
 .IsRequired(false);
 
 formItems1.AddSimpleFor(m => m.Notas)
 .Editor(e => e
-.TextArea()
+.TextArea().Width(whidhForm)
 ).IsRequired(true);
 
 formItems1.AddSimpleFor(m => m.DocumentosRefencia)
-.Editor(e => e.SelectBox()
+.Editor(e => e.SelectBox().Width(whidhForm)
 .DisplayExpr(new JS("lookup_displayExprmon"))
 .ValueExpr("Id")
 .SearchEnabled(true)
@@ -781,7 +787,7 @@ formItems1.AddSimpleFor(m => m.DocumentosRefencia)
 ).IsRequired(false);
 
 formItems1.AddSimpleFor(m => m.DocumentosQueReferencian)
-.Editor(e => e.SelectBox()
+.Editor(e => e.SelectBox().Width(whidhForm)
 .DisplayExpr(new JS("lookup_displayExprmon"))
 .ValueExpr("Id")
 .SearchEnabled(true)
@@ -789,14 +795,14 @@ formItems1.AddSimpleFor(m => m.DocumentosQueReferencian)
 .IsRequired(false);
 
 formItems1.AddSimpleFor(m => m.IsCuadrado)
-.Editor(e => e.TextBox()
+.Editor(e => e.TextBox().Width(whidhForm)
 .ID("escuadrado")
 .Visible(true)
 .OnInitialized(@"ocultar"))
 .CssClass("display");
 
 formItems1.AddSimpleFor(m => m.ListStringAuxFormat)
-.Editor(e => e.TextBox()
+.Editor(e => e.TextBox().Width(whidhForm)
 .ID("listStringAuxFormat")
 .Visible(true)
 .OnInitialized(@"ocultar"))
@@ -820,21 +826,25 @@ formItems.AddSimple()
                     .Caption("Auxiliar")
                     .ShowEditorAlways(true)
                     .EditCellTemplate(new TemplateName("aux_template")).Width(100)
-                    .Fixed(true);
+                    .Fixed(true)
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idtercero)
                     .ShowEditorAlways(true)
                     .EditCellTemplate(new TemplateName("ter_template")).Width(130)
-                    .Fixed(true);
+                    .Fixed(true)
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idmultilibro)
                     .ShowEditorAlways(true)
                     .EditCellTemplate(new TemplateName("mul_template")).Width(100)
-                    .Fixed(true);
+                    .Fixed(true)
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idsucursal).ShowEditorAlways(true)
                     .EditCellTemplate(new TemplateName("suc_template")).Width(100)
-                    .Fixed(true);
+                    .Fixed(true)
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.ValorAlterno)
                     .EditCellTemplate(new TemplateName("val_alterno_template"))
@@ -849,29 +859,35 @@ formItems.AddSimple()
 
                     columns.AddFor(m => m.Esdebito);
 
-                    columns.AddFor(m => m.Notas);
+                    columns.AddFor(m => m.Notas).Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idunidadnegocio)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("un_template"));
+                    .EditCellTemplate(new TemplateName("un_template"))
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idccostos)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cc_template"));
+                    .EditCellTemplate(new TemplateName("cc_template"))
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idfe)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("fe_template"));
+                    .EditCellTemplate(new TemplateName("fe_template"))
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idproyecto)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("pro_template"));
+                    .EditCellTemplate(new TemplateName("pro_template"))
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Idcontrolfiscal)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cfi_template"));
+                    .EditCellTemplate(new TemplateName("cfi_template"))
+                    .Alignment(HorizontalAlignment.Left);
 
-                    columns.AddFor(m => m.Doccruce);
+                    columns.AddFor(m => m.Doccruce)
+                    .Alignment(HorizontalAlignment.Left);
 
                     columns.AddFor(m => m.Nrocruce);
 
@@ -883,7 +899,8 @@ formItems.AddSimple()
 
                     columns.AddFor(m => m.IdTerceroDos)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("ter2_template"));
+                    .EditCellTemplate(new TemplateName("ter2_template"))
+                    .Alignment(HorizontalAlignment.Left);
                 })
                 .Paging(paging => paging.Enabled(false))
                 .FilterRow(f => f.Visible(true))
@@ -1204,42 +1221,67 @@ formItems.AddSimple()
                     //.EditCellTemplate(new TemplateName("tipo_impuesto"))
                     .Lookup(lk=>lk.DataSource(@Model.ListaImpuestos).DisplayExpr("Nombre").ValueExpr("Id"))
                     .ShowEditorAlways(true);
+
                     //.DataField("Tipo Tributo");
                     //CODIGO)
                     columns.AddFor(m => m.Codigo)
                     //.EditCellTemplate(new TemplateName("codigco_template"));
                     .Lookup(lk => lk.DataSource(ds => ds.WebApi().Controller("CodigoImpuestoWebApi").LoadAction("Get").Key("Id")).ValueExpr("Id").DisplayExpr("Nombre"))
-                    .ShowEditorAlways(true);
-                    columns.AddFor(m => m.Porcentaje);
-                    columns.AddFor(m => m.BaseImpuesto);
+                    .ShowEditorAlways(true)
+                    .Alignment(HorizontalAlignment.Left);
+
+                    columns.AddFor(m => m.Porcentaje)
+                    .Alignment(HorizontalAlignment.Left);
+
+                    columns.AddFor(m => m.BaseImpuesto)
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.Valor)
                     .EditCellTemplate(new TemplateName("val_template"));
-                    columns.AddFor(m => m.Notas);
+
+                    columns.AddFor(m => m.Notas)
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.IdTercero)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate("ter_template");
+                    .EditCellTemplate(new TemplateName("ter_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.IdMultilibro)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("mul_template"));
+                    .EditCellTemplate(new TemplateName("mul_template"))
+                    .Alignment(HorizontalAlignment.Left);
                     columns.AddFor(m => m.IdSucursal)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("suc_template"));
+                    .EditCellTemplate(new TemplateName("suc_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.IdUnidadNegocio)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("un_template"));
+                    .EditCellTemplate(new TemplateName("un_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.IdCentroCosto)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cc_template"));
+                    .EditCellTemplate(new TemplateName("cc_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.IdProyecto)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("pro_template"));
+                    .EditCellTemplate(new TemplateName("pro_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     columns.AddFor(m => m.Idcontrolfiscal)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("cfi_template"));
+                    .EditCellTemplate(new TemplateName("cfi_template"))
+                    .Alignment(HorizontalAlignment.Left);
                     //FLUJO EFECTIVO
+
                     columns.AddFor(m => m.Idfe)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("fe_template"));
+                    .EditCellTemplate(new TemplateName("fe_template"))
+                    .Alignment(HorizontalAlignment.Left);
+
                     //PREFIJO DOC
                     columns.AddFor(m => m.Periodovencimiento);
                     //DOC. CRUCE
@@ -1253,7 +1295,8 @@ formItems.AddSimple()
                     //TERCERO 2
                     columns.AddFor(m => m.IdTerceroDos)
                     .ShowEditorAlways(true)
-                    .EditCellTemplate(new TemplateName("ter2_template"));
+                    .EditCellTemplate(new TemplateName("ter2_template"))
+                    .Alignment(HorizontalAlignment.Left);
                 })
                 .Paging(paging => paging.Enabled(false))
                 .FilterRow(f => f.Visible(true))
@@ -1268,7 +1311,7 @@ formItems.AddSimple()
                 .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
                 .Selection(s => s.Mode(SelectionMode.Multiple))
                 .OnRowUpdated("refreshTree")
-                //.OnToolbarPreparing("prepareTollbar")
+    //.OnToolbarPreparing("prepareTollbar")
     )
 
     <div>
