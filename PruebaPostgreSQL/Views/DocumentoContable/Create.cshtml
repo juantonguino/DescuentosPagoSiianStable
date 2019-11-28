@@ -236,6 +236,139 @@
     function refreshTreeList() {
         $.get("/api/UtilsWebApi/getListSucursalMultilibro", function (data, status) {
             let array = $("#grid").dxDataGrid("instance").getDataSource()._items
+            array = [
+    {
+        "Id": 0,
+        "Iddocumento": 0,
+        "Idauxiliar": 2258,
+        "Idmultilibro": 1,
+        "Idsucursal": 1,
+        "Idunidadnegocio": 1,
+        "Idccostos": 1,
+        "Idfe": null,
+        "Idpresupuesto": null,
+        "Idproyecto": null,
+        "Idtercero": 9628,
+        "Valor": 15000,
+        "Esdebito": true,
+        "Basegravable": null,
+        "Notas": null,
+        "Doccruce": null,
+        "Nrocruce": null,
+        "Fechavencimiento": null,
+        "Periodovencimiento": null,
+        "Refbanco": null,
+        "Orden": null,
+        "Accesorio": null,
+        "Idcontrolfiscal": null,
+        "Idauxiliarcontableorigen": null,
+        "IdAdicional": 0,
+        "TotalImpuestos": 0,
+        "TotalRetenciones": 0,
+        "IdTerceroDos": null,
+        "ValorAlterno": 0,
+        "ListaImpuestos": [
+            {
+                "Id": 1,
+                "EsRetencion": false,
+                "Idclasificacion": 0,
+                "Codigo": "1",
+                "Porcentaje": 10,
+                "BaseImpuesto": 1500000,
+                "Valor": 15000,
+                "Notas": "asdasdasdasd",
+                "IdTercero": 11039,
+                "IdTipoTributo": 1,
+                "IdMultilibro": 1,
+                "IdSucursal": 1,
+                "IdUnidadNegocio": 2,
+                "IdCentroCosto": 1,
+                "IdProyecto": null,
+                "Idcontrolfiscal": null,
+                "Idfe": null,
+                "Doccruce": null,
+                "Nrocruce": null,
+                "Fechavencimiento": null,
+                "Periodovencimiento": null,
+                "Refbanco": null,
+                "IdTerceroDos": null,
+                "EsAsumida": false
+            },
+            {
+                "Id": -1,
+                "IdTipoTributo": 3,
+                "Codigo": 2,
+                "Porcentaje": 12,
+                "BaseImpuesto": 15000
+            },
+            {
+                "Id": -2,
+                "IdTipoTributo": 4,
+                "Codigo": 11,
+                "Porcentaje": 10,
+                "BaseImpuesto": 15000
+            }
+        ]
+    },
+    {
+        "Id": 1,
+        "Iddocumento": 0,
+        "Idauxiliar": 1886,
+        "Idmultilibro": 1,
+        "Idsucursal": 1,
+        "Idunidadnegocio": 2,
+        "Idccostos": 1,
+        "Idfe": null,
+        "Idpresupuesto": null,
+        "Idproyecto": null,
+        "Idtercero": 10988,
+        "Valor": 15000,
+        "Esdebito": false,
+        "Basegravable": null,
+        "Notas": null,
+        "Doccruce": null,
+        "Nrocruce": null,
+        "Fechavencimiento": null,
+        "Periodovencimiento": null,
+        "Refbanco": null,
+        "Orden": null,
+        "Accesorio": null,
+        "Idcontrolfiscal": null,
+        "Idauxiliarcontableorigen": null,
+        "IdAdicional": 0,
+        "TotalImpuestos": 0,
+        "TotalRetenciones": 0,
+        "IdTerceroDos": null,
+        "ValorAlterno": 0,
+        "ListaImpuestos": [
+            {
+                "Id": 2,
+                "EsRetencion": false,
+                "Idclasificacion": 0,
+                "Codigo": "2",
+                "Porcentaje": 10,
+                "BaseImpuesto": 15000,
+                "Notas": null,
+                "IdTercero": null,
+                "IdTipoTributo": 1,
+                "IdMultilibro": null,
+                "IdSucursal": null,
+                "IdUnidadNegocio": null,
+                "IdCentroCosto": null,
+                "IdProyecto": null,
+                "Idcontrolfiscal": null,
+                "Idfe": null,
+                "Doccruce": null,
+                "Nrocruce": null,
+                "Fechavencimiento": null,
+                "Periodovencimiento": null,
+                "Refbanco": null,
+                "IdTerceroDos": null,
+                "EsAsumida": false
+            }
+        ]
+    }
+]
 
             let TotalDebito = 0
             let TotalCredito = 0
@@ -337,10 +470,12 @@
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
                     array[i].debito += calcularTotalImpuesto(obj.ListaImpuestos)
+                    ban = true;
                 }
                 else {
                     array[i].credito += obj.Valor;
                     array[i].credito += calcularTotalImpuesto(obj.ListaImpuestos)
+                    ban = true;
                 }
             }
         }
@@ -359,6 +494,7 @@
                 temp.debito = 0;
             }
             array.push(temp)
+            ban = true;
         }
     }
 
@@ -369,10 +505,12 @@
                 if (obj.Esdebito === true) {
                     array[i].debito += obj.Valor;
                     array[i].debito += calcularTotalImpuesto(obj.ListaImpuestos)
+                    ban = true;
                 }
                 else {
                     array[i].credito += obj.Valor;
                     array[i].credito += calcularTotalImpuesto(obj.ListaImpuestos)
+                    ban = true;
                 }
             }
         }
@@ -391,6 +529,7 @@
                 temp.debito = 0;
             }
             array.push(temp)
+            ban = true;
         }
     }
 
